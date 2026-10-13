@@ -28,5 +28,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - `plano-correcao.mjs`: prioridade por severidade, impacto e esforço (críticos, ganhos rápidos, estruturais, melhorias).
 - Revalidação (`comparar-revalidacao.mjs`): antes × depois por caso de API, degrau de carga, disputa e fluxo de persona.
 - Guarda contra regressão: modelo de job do GitHub Actions e modo `PRODTESTER_FALHAR=1` nos executores k6.
+- Relatório em forma de laudo (`gerar-relatorio.mjs`): HTML autocontido que abre offline, com tema papel de eletrocardiograma e tema monitor, placar em dígitos de monitor, traçado do teste de esforço, matriz e linha do tempo das personas com screenshots, tabela de API, gráficos de carga, conduta com diffs realçados, antes × depois e limites; versão em Markdown para PR e issue.
+- Placar de saúde com fórmula documentada: penalidade por severidade, nota por exame, média ponderada dos exames realizados e teto de 59 com achado crítico.
 - Leitura de especificações OpenAPI em JSON (`openapi-endpoints.mjs`).
 - Credenciais de teste sem expor senhas, via segredos do navegador (`PRODTESTER_SEGREDOS`) ou sessão salva (`PRODTESTER_SESSAO`).

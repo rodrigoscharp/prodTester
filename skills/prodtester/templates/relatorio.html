@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="prodtester">
+<title>Laudo prodtester</title>
+<style>
+:root {
+  --papel: #ffffff;
+  --painel: #ffffff;
+  --grade: #f6dcd8;
+  --grade-forte: #ecb9b2;
+  --tinta: #1b2a3a;
+  --tinta-suave: #556575;
+  --linha: #d9e0e6;
+  --traco: #1b2a3a;
+  --critica: #c8102e;
+  --alta: #c85a12;
+  --media: #9a7300;
+  --baixa: #6b7a89;
+  --ok: #1e7f54;
+  --mais-fundo: #e6f4ec;
+  --menos-fundo: #fbe7e9;
+  --codigo-fundo: #f5f7f9;
+  --sombra-traco: none;
+  --foco: #1f5fbf;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papel: #031417;
+    --painel: #062126;
+    --grade: #0b3035;
+    --grade-forte: #12474d;
+    --tinta: #d6f1ec;
+    --tinta-suave: #86aca6;
+    --linha: #164046;
+    --traco: #3ef2a2;
+    --critica: #ff5a6a;
+    --alta: #ff9d4a;
+    --media: #f2cb55;
+    --baixa: #8fa7a4;
+    --ok: #3ef2a2;
+    --mais-fundo: #0b3a2b;
+    --menos-fundo: #3d1419;
+    --codigo-fundo: #04191c;
+    --sombra-traco: drop-shadow(0 0 4px rgba(62, 242, 162, .55));
+    --foco: #7cc4ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papel: #031417;
+  --painel: #062126;
+  --grade: #0b3035;
+  --grade-forte: #12474d;
+  --tinta: #d6f1ec;
+  --tinta-suave: #86aca6;
+  --linha: #164046;
+  --traco: #3ef2a2;
+  --critica: #ff5a6a;
+  --alta: #ff9d4a;
+  --media: #f2cb55;
+  --baixa: #8fa7a4;
+  --ok: #3ef2a2;
+  --mais-fundo: #0b3a2b;
+  --menos-fundo: #3d1419;
+  --codigo-fundo: #04191c;
+  --sombra-traco: drop-shadow(0 0 4px rgba(62, 242, 162, .55));
+  --foco: #7cc4ff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+.folha { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+@media (min-width: 720px) { .folha { padding: 40px 32px 96px; } }
+
+h1, h2, h3 { line-height: 1.2; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.75rem, 4.5vw, 2.45rem); }
+h2 { font-size: 1.5625rem; margin-bottom: 4px; }
+h3 { font-size: 1.25rem; }
+p { margin: 0 0 12px; max-width: 72ch; }
+.suave { color: var(--tinta-suave); }
+.pequeno { font-size: .875rem; }
+
+/* Cabeçalho do laudo */
+.topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 20px; border-bottom: 2px solid var(--tinta); }
+.topo .tipo { font-size: .9375rem; color: var(--tinta-suave); margin-bottom: 6px; }
+.tema {
+  flex: none; border: 1px solid var(--linha); background: var(--painel); color: var(--tinta);
+  border-radius: 999px; padding: 6px 14px; font: inherit; font-size: .875rem; cursor: pointer;
+}
+.identificacao { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 24px; margin: 20px 0 0; }
+.identificacao div { border-left: 2px solid var(--linha); padding-left: 10px; }
+.identificacao dt { font-size: .8125rem; color: var(--tinta-suave); }
+.identificacao dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+
+/* Monitor: o resultado */
+.monitor {
+  margin: 32px 0 8px; border: 1.5px solid var(--grade-forte); border-radius: 6px; overflow: hidden;
+  background-color: var(--painel);
+  background-image:
+    linear-gradient(var(--grade-forte) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grade-forte) 1px, transparent 1px),
+    linear-gradient(var(--grade) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grade) 1px, transparent 1px);
+  background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
+}
+.monitor-corpo { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 860px) { .monitor-corpo { grid-template-columns: 300px 1fr; } }
+.leitura { padding: 22px 22px 18px; border-bottom: 1.5px solid var(--grade-forte); }
+@media (min-width: 860px) { .leitura { border-bottom: 0; border-right: 1.5px solid var(--grade-forte); } }
+.leitura .rotulo { font-size: .875rem; color: var(--tinta-suave); }
+.digitos { display: block; margin: 6px 0 4px; filter: var(--sombra-traco); }
+.digitos .seg { fill: var(--traco); }
+.digitos .seg-off { fill: var(--grade-forte); opacity: .35; }
+.faixa { font-size: 1.25rem; font-weight: 700; }
+.modos { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 6px; }
+.modos li { display: grid; grid-template-columns: 72px 1fr 34px; align-items: center; gap: 8px; font-size: .875rem; }
+.modos .barra { height: 6px; background: var(--grade); border-radius: 3px; overflow: hidden; }
+.modos .barra span { display: block; height: 100%; background: var(--traco); }
+.modos .na { color: var(--tinta-suave); font-size: .8125rem; grid-column: 2 / 4; }
+.traco-area { padding: 18px 18px 10px; min-width: 0; }
+.traco-area svg { display: block; width: 100%; height: auto; overflow: visible; }
+.traco-linha { fill: none; stroke: var(--traco); stroke-width: 2.5; stroke-linejoin: round; filter: var(--sombra-traco); }
+.traco-anima { stroke-dasharray: var(--comprimento); stroke-dashoffset: var(--comprimento); animation: desenhar 1.8s cubic-bezier(.6, .1, .2, 1) .2s forwards; }
+@keyframes desenhar { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .traco-anima { animation: none; stroke-dashoffset: 0; } }
+.eixo { font-size: 12px; fill: var(--tinta-suave); }
+.limite { stroke: var(--critica); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.ponto-ok { fill: var(--papel); stroke: var(--traco); stroke-width: 2; }
+.ponto-ruim { fill: var(--critica); }
+.ponto-invalido { fill: var(--papel); stroke: var(--media); stroke-width: 2; stroke-dasharray: 2 2; }
+.capacidade { padding: 16px 22px 20px; border-top: 1.5px solid var(--grade-forte); display: grid; gap: 10px; }
+@media (min-width: 720px) { .capacidade { grid-template-columns: 1fr 1fr; } }
+.capacidade strong { display: block; font-size: 1.25rem; line-height: 1.3; }
+.capacidade .depois strong { color: var(--tinta-suave); font-weight: 600; }
+.capacidade .depois.medida strong { color: var(--ok); }
+
+/* Seções */
+section { margin-top: 56px; }
+.secao-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--linha); padding-bottom: 8px; margin-bottom: 18px; }
+.contagem { display: flex; gap: 14px; flex-wrap: wrap; font-size: .875rem; }
+.contagem span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: currentColor; vertical-align: 1px; }
+
+/* Severidade */
+.sev-critica { --cor: var(--critica); }
+.sev-alta { --cor: var(--alta); }
+.sev-media { --cor: var(--media); }
+.sev-baixa { --cor: var(--baixa); }
+.marca-sev { color: var(--cor); font-weight: 700; font-size: .875rem; white-space: nowrap; }
+
+.achado { border-left: 4px solid var(--cor); padding: 4px 0 4px 16px; margin: 0 0 26px; }
+.achado-cab { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.achado h3 { font-size: 1.125rem; }
+.achado .id { color: var(--tinta-suave); font-size: .875rem; }
+.achado .onde { margin: 4px 0 8px; font-size: .875rem; color: var(--tinta-suave); overflow-wrap: anywhere; }
+.evidencias { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
+.evidencias li { font-size: .9375rem; }
+.evidencias .tipo { color: var(--tinta-suave); }
+.evidencias img { display: block; margin-top: 6px; max-width: min(100%, 420px); border: 1px solid var(--linha); border-radius: 4px; cursor: zoom-in; }
+.causa { margin: 6px 0 0; font-size: .9375rem; }
+.selo { display: inline-block; border-radius: 3px; padding: 0 6px; font-size: .8125rem; font-weight: 600; margin-right: 6px; border: 1px solid currentColor; }
+.selo-confirmada { color: var(--ok); }
+.selo-hipotese { color: var(--media); border-style: dashed; }
+
+/* Tabelas */
+.rolagem { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: .9375rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+th { font-weight: 600; color: var(--tinta-suave); font-size: .8125rem; white-space: nowrap; }
+td.c, th.c { text-align: center; }
+td code, .codigo-inline { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8125rem; }
+.persona-cab { white-space: nowrap; }
+.persona-cab .emoji { font-size: 1.4rem; display: block; line-height: 1.1; }
+
+/* Personas */
+.personas { display: grid; gap: 14px; margin-top: 26px; }
+details.persona { border: 1px solid var(--linha); border-radius: 6px; background: var(--painel); }
+details.persona > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; }
+details.persona > summary::-webkit-details-marker { display: none; }
+details.persona .emoji-grande { font-size: 2rem; line-height: 1; text-align: center; }
+details.persona .bordao { font-style: italic; color: var(--tinta-suave); font-size: .9375rem; }
+details.persona .resultado { font-size: .875rem; white-space: nowrap; }
+details.persona[open] > summary { border-bottom: 1px solid var(--linha); }
+.linha-tempo { list-style: none; margin: 0; padding: 16px 16px 8px 16px; }
+.linha-tempo li { position: relative; padding: 0 0 18px 28px; }
+.linha-tempo li::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: -2px; width: 2px; background: var(--linha); }
+.linha-tempo li:last-child::before { display: none; }
+.linha-tempo li::after { content: ""; position: absolute; left: 1px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--painel); border: 2px solid var(--tinta-suave); }
+.linha-tempo li.com-erro::after { border-color: var(--critica); background: var(--critica); }
+.passo-n { font-size: .8125rem; color: var(--tinta-suave); }
+.fala { margin: 2px 0 4px; font-size: 1.0625rem; }
+.fala::before { content: "“"; } .fala::after { content: "”"; }
+.viu { font-size: .9375rem; color: var(--tinta-suave); margin: 0 0 4px; }
+.erros-passo { font-size: .8125rem; color: var(--critica); margin: 0 0 4px; overflow-wrap: anywhere; }
+.linha-tempo img { display: block; max-width: min(100%, 360px); border: 1px solid var(--linha); border-radius: 4px; margin-top: 6px; cursor: zoom-in; }
+
+/* Gráficos de carga */
+.graficos { display: grid; gap: 26px; }
+@media (min-width: 900px) { .graficos { grid-template-columns: 3fr 2fr; } }
+figure { margin: 0; }
+figcaption { font-size: .875rem; color: var(--tinta-suave); margin-top: 6px; }
+.grafico svg { width: 100%; height: auto; display: block; }
+.grafico-passos { max-width: 640px; }
+.grade-linha { stroke: var(--linha); stroke-width: 1; }
+.barra-erro { fill: var(--critica); opacity: .75; }
+.barra-passo { fill: var(--traco); }
+.alerta { border: 1px dashed var(--media); border-radius: 6px; padding: 10px 14px; margin: 14px 0; font-size: .9375rem; }
+.disputa { border-left: 4px solid var(--cor, var(--ok)); padding: 6px 0 6px 14px; margin: 18px 0; }
+
+/* Conduta */
+.grupo { margin-top: 26px; }
+.grupo > h3 { margin-bottom: 4px; }
+.grupo > p { font-size: .9375rem; }
+ol.itens { margin: 12px 0 0; padding-left: 0; list-style: none; counter-reset: item var(--inicio, 0); }
+ol.itens > li { counter-increment: item; display: grid; grid-template-columns: 34px 1fr; gap: 8px; padding: 14px 0; border-top: 1px solid var(--linha); }
+ol.itens > li::before { content: counter(item); font-weight: 700; font-size: 1.25rem; color: var(--tinta-suave); }
+.item-meta { font-size: .875rem; color: var(--tinta-suave); margin: 2px 0 6px; }
+.passos-infra { margin: 6px 0; padding-left: 20px; font-size: .9375rem; }
+details.diff { margin-top: 8px; }
+details.diff summary { cursor: pointer; font-size: .875rem; color: var(--tinta-suave); }
+pre.diff {
+  margin: 8px 0 0; padding: 10px 0; background: var(--codigo-fundo); border: 1px solid var(--linha); border-radius: 4px;
+  font: .8125rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-x: auto;
+}
+pre.diff span.l { display: block; padding: 0 12px; white-space: pre; min-width: max-content; }
+pre.diff .l-mais { background: var(--mais-fundo); }
+pre.diff .l-menos { background: var(--menos-fundo); }
+pre.diff .l-meta { color: var(--tinta-suave); }
+pre.diff .t-chave { color: var(--foco); font-weight: 600; }
+pre.diff .t-texto { color: var(--ok); }
+pre.diff .t-num { color: var(--alta); }
+pre.diff .t-coment { color: var(--tinta-suave); font-style: italic; }
+
+/* Antes e depois */
+.res-corrigido { color: var(--ok); font-weight: 600; }
+.res-melhorou { color: var(--ok); }
+.res-piorou { color: var(--critica); font-weight: 600; }
+.res-sem-mudanca, .res-inconclusivo { color: var(--tinta-suave); }
+
+/* Método */
+.metodo ul { padding-left: 20px; }
+.metodo li { margin-bottom: 6px; max-width: 80ch; }
+footer { margin-top: 64px; padding-top: 14px; border-top: 2px solid var(--tinta); font-size: .875rem; color: var(--tinta-suave); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+dialog.ampliar { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+dialog.ampliar::backdrop { background: rgba(0, 0, 0, .78); }
+dialog.ampliar img { display: block; max-width: 96vw; max-height: 90vh; border-radius: 4px; }
+dialog.ampliar button { position: absolute; top: 8px; right: 8px; font: inherit; border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+
+.vazio { color: var(--tinta-suave); font-style: italic; }
+@media print {
+  .tema { display: none; }
+  details { display: block; }
+  details > summary { display: block; }
+  section { break-inside: avoid-page; }
+}
+</style>
+</head>
+<body>
+<main class="folha" id="laudo">
+  <noscript><p>Este laudo precisa de JavaScript para ser montado. Abra o arquivo relatorio.md para a versão em texto.</p></noscript>
+</main>
+<dialog class="ampliar" id="ampliar" aria-label="Screenshot ampliado"><button type="button" id="fechar-ampliar">Fechar</button><img alt=""></dialog>
+<script id="dados" type="application/json">/*__DADOS__*/null</script>
+<script>
+(function () {
+  'use strict';
+  var D = JSON.parse(document.getElementById('dados').textContent);
+  var raiz = document.getElementById('laudo');
+  if (!D) { raiz.textContent = 'Sem dados de auditoria neste arquivo.'; return; }
+  var SVG = 'http://www.w3.org/2000/svg';
+
+  // ---------- utilitários ----------
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') el.className = v;
+      else if (k === 'texto') el.textContent = v;
+      else if (k.indexOf('on') === 0) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) anexar(el, arguments[i]);
+    return el;
+  }
+  function anexar(el, filho) {
+    if (filho === null || filho === undefined || filho === false) return;
+    if (Array.isArray(filho)) { filho.forEach(function (f) { anexar(el, f); }); return; }
+    el.appendChild(typeof filho === 'string' || typeof filho === 'number' ? document.createTextNode(String(filho)) : filho);
+  }
+  function s(tag, attrs) {
+    var el = document.createElementNS(SVG, tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'texto') el.textContent = attrs[k];
+      else if (attrs[k] !== null && attrs[k] !== undefined) el.setAttribute(k, attrs[k]);
+    });
+    for (var i = 2; i < arguments.length; i++) if (arguments[i]) el.appendChild(arguments[i]);
+    return el;
+  }
+  function ms(v) { return v === null || v === undefined ? '–' : Math.round(v).toLocaleString('pt-BR') + ' ms'; }
+  function pct(v) { return v === null || v === undefined ? '–' : (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '%'; }
+  function plural(n, um, varios) { return n + ' ' + (n === 1 ? um : varios); }
+  var SEV = { critica: 'Crítica', alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+  var RES = { concluiu: ['✅', 'concluiu'], concluiu_com_problemas: ['⚠️', 'concluiu com problemas'], falhou: ['❌', 'falhou'], abandonou: ['❌', 'abandonou'], nao_executado: ['—', 'não executado'] };
+  var AMBIENTE = { local: 'Local', staging: 'Staging' };
+  var PERFIL = { 'saas-multitenant': 'SaaS multiusuário', 'local-first': 'App local-first', 'api-publica': 'API pública' };
+  var MODOS = { personas: 'Personas', api: 'API', carga: 'Carga' };
+  var EVIDENCIA = { screenshot: 'Tela', requisicao: 'Requisição', k6: 'Medição de carga', console: 'Console', explain: 'Plano da consulta', log: 'Log', codigo: 'Código', passo: 'Passo', medicao: 'Medição' };
+
+  function ampliar(src, alt) {
+    var dlg = document.getElementById('ampliar');
+    var img = dlg.querySelector('img');
+    img.src = src; img.alt = alt || '';
+    if (dlg.showModal) dlg.showModal();
+  }
+  document.getElementById('fechar-ampliar').addEventListener('click', function () { document.getElementById('ampliar').close(); });
+  document.getElementById('ampliar').addEventListener('click', function (e) { if (e.target === this) this.close(); });
+  function imagem(src, alt) {
+    return h('img', { src: src, alt: alt, loading: 'lazy', tabindex: '0', role: 'button', 'aria-label': 'Ampliar: ' + alt,
+      onclick: function () { ampliar(src, alt); },
+      onkeydown: function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ampliar(src, alt); } } });
+  }
+  function secao(id, titulo, extra) {
+    var sec = h('section', { id: id, 'aria-labelledby': id + '-t' });
+    sec.appendChild(h('div', { class: 'secao-topo' }, h('h2', { id: id + '-t', texto: titulo }), extra || null));
+    return sec;
+  }
+
+  // ---------- dígitos de monitor (sete segmentos) ----------
+  var SEGMENTOS = { '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc', '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcdfg', '-': 'g' };
+  function digitos(texto, altura, rotulo) {
+    var w = altura * 0.56, t = altura * 0.11, gap = altura * 0.16;
+    var chars = String(texto).split('');
+    var largura = chars.length * w + (chars.length - 1) * gap;
+    var svg = s('svg', { class: 'digitos', viewBox: '0 0 ' + largura + ' ' + altura, width: largura, height: altura, role: 'img', 'aria-label': rotulo });
+    chars.forEach(function (c, i) {
+      var x = i * (w + gap), meio = altura / 2;
+      var pos = {
+        a: [x + t, 0, w - 2 * t, t], d: [x + t, altura - t, w - 2 * t, t], g: [x + t, meio - t / 2, w - 2 * t, t],
+        f: [x, t, t, meio - t * 1.2], b: [x + w - t, t, t, meio - t * 1.2],
+        e: [x, meio + t * 0.2, t, meio - t * 1.2], c: [x + w - t, meio + t * 0.2, t, meio - t * 1.2]
+      };
+      var ligados = SEGMENTOS[c] || '';
+      'abcdefg'.split('').forEach(function (seg) {
+        var p = pos[seg];
+        svg.appendChild(s('rect', { x: p[0], y: p[1], width: p[2], height: p[3], rx: t / 2, class: ligados.indexOf(seg) >= 0 ? 'seg' : 'seg-off' }));
+      });
+    });
+    return svg;
+  }
+
+  // ---------- traçado do teste de esforço ----------
+  function tracado(curva, limite, quebra, opcoes) {
+    opcoes = opcoes || {};
+    var W = 640, H = opcoes.altura || 260, m = { e: 54, d: 28, t: 16, b: 44 };
+    var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': opcoes.rotulo || 'Curva de usuários simultâneos por p95' });
+    if (!curva || !curva.length) {
+      var y0 = H / 2;
+      svg.appendChild(s('path', { d: 'M0 ' + y0 + ' H' + W, class: 'traco-linha' }));
+      svg.appendChild(s('text', { x: W / 2, y: y0 - 14, 'text-anchor': 'middle', class: 'eixo', texto: 'Teste de esforço não realizado nesta auditoria' }));
+      return svg;
+    }
+    var maxY = Math.max(limite * 1.6, Math.max.apply(null, curva.map(function (p) { return p.p95_ms || 0; })) * 1.1);
+    var px = function (i) { return m.e + (curva.length === 1 ? (W - m.e - m.d) / 2 : i * (W - m.e - m.d) / (curva.length - 1)); };
+    var py = function (v) { return H - m.b - (v / maxY) * (H - m.t - m.b); };
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (f) {
+      var v = maxY * f;
+      svg.appendChild(s('text', { x: m.e - 8, y: py(v) + 4, 'text-anchor': 'end', class: 'eixo', texto: Math.round(v) + ' ms' }));
+    });
+    svg.appendChild(s('line', { x1: m.e, x2: W - m.d, y1: py(limite), y2: py(limite), class: 'limite' }));
+    svg.appendChild(s('text', { x: W - m.d, y: py(limite) - 6, 'text-anchor': 'end', class: 'eixo', fill: 'var(--critica)', texto: 'limite p95 ' + limite + ' ms' }));
+    // Traçado em forma de eletrocardiograma: um pulso em cada degrau medido.
+    var d = 'M' + m.e + ' ' + py(0);
+    curva.forEach(function (p, i) {
+      var x = px(i), y = py(p.p95_ms || 0), base = py(0);
+      var antes = i === 0 ? m.e : px(i - 1);
+      var meio = (antes + x) / 2;
+      d += ' L' + Math.max(antes, x - 22) + ' ' + base + ' L' + (x - 12) + ' ' + (base + 7) + ' L' + x + ' ' + y + ' L' + (x + 10) + ' ' + (base + 10) + ' L' + (x + 18) + ' ' + base;
+      if (i === curva.length - 1) d += ' L' + (W - 4) + ' ' + base;
+      void meio;
+    });
+    var linha = s('path', { d: d, class: 'traco-linha traco-anima' });
+    svg.appendChild(linha);
+    requestAnimationFrame(function () {
+      try { linha.style.setProperty('--comprimento', Math.ceil(linha.getTotalLength())); } catch (e) { linha.classList.remove('traco-anima'); }
+    });
+    curva.forEach(function (p, i) {
+      var cls = p.valido === false ? 'ponto-invalido' : p.dentro_dos_limites ? 'ponto-ok' : 'ponto-ruim';
+      var c = s('circle', { cx: px(i), cy: py(p.p95_ms || 0), r: 5, class: cls });
+      c.appendChild(s('title', { texto: p.vus + ' usuários: p95 ' + ms(p.p95_ms) + ', erro ' + pct(p.taxa_erro) }));
+      svg.appendChild(c);
+      svg.appendChild(s('text', { x: px(i), y: H - 24, 'text-anchor': 'middle', class: 'eixo', texto: String(p.vus) }));
+    });
+    svg.appendChild(s('text', { x: W - m.d, y: H - 4, 'text-anchor': 'end', class: 'eixo', texto: 'usuários simultâneos' }));
+    if (quebra) {
+      var iq = curva.findIndex(function (p) { return p.vus === quebra.usuarios; });
+      if (iq >= 0) svg.appendChild(s('text', { x: px(iq), y: py(curva[iq].p95_ms) - 12, 'text-anchor': px(iq) > W - 120 ? 'end' : 'middle', class: 'eixo', fill: 'var(--critica)', 'font-weight': '700', texto: 'quebra' }));
+    }
+    return svg;
+  }
+
+  // ---------- realce de diff ----------
+  var CHAVES = /\b(const|let|var|function|return|if|else|await|async|import|export|from|new|throw|try|catch|class|public|private|static|void|null|true|false|undefined|SELECT|FROM|WHERE|UPDATE|INSERT|INTO|VALUES|SET|CREATE|INDEX|UNIQUE|ON|AND|OR|NOT|RETURNING|ALTER|TABLE|ADD|CONSTRAINT|CHECK|CONCURRENTLY|JOIN|LEFT|GROUP|BY|ORDER|LIMIT|DESC|ASC|CONFLICT|DO|BEGIN|COMMIT)\b/;
+  function realcar(codigo, destino) {
+    var re = /(\/\/.*$|--\s.*$|#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]+)/g;
+    var ultimo = 0, m;
+    while ((m = re.exec(codigo))) {
+      if (m.index > ultimo) destino.appendChild(document.createTextNode(codigo.slice(ultimo, m.index)));
+      var cls = m[1] ? 't-coment' : m[2] ? 't-texto' : m[3] ? 't-num' : CHAVES.test(m[4]) && m[4].length > 1 ? 't-chave' : null;
+      destino.appendChild(cls ? h('span', { class: cls, texto: m[0] }) : document.createTextNode(m[0]));
+      ultimo = re.lastIndex;
+    }
+    if (ultimo < codigo.length) destino.appendChild(document.createTextNode(codigo.slice(ultimo)));
+  }
+  function blocoDiff(texto) {
+    var pre = h('pre', { class: 'diff', tabindex: '0', 'aria-label': 'Diff da correção' });
+    texto.replace(/\n$/, '').split('\n').forEach(function (linha) {
+      var cls = /^(\+\+\+|---|diff |index |@@)/.test(linha) ? 'l-meta' : linha[0] === '+' ? 'l-mais' : linha[0] === '-' ? 'l-menos' : '';
+      var span = h('span', { class: 'l ' + cls });
+      if (cls === 'l-meta') span.textContent = linha;
+      else { span.appendChild(document.createTextNode(linha.slice(0, 1))); realcar(linha.slice(1), span); }
+      pre.appendChild(span);
+    });
+    return pre;
+  }
+
+  // ---------- montagem ----------
+  var achadoPorId = {};
+  (D.achados || []).forEach(function (a) { achadoPorId[a.id] = a; });
+
+  // Cabeçalho
+  var temaBtn = h('button', { class: 'tema', type: 'button', 'aria-pressed': 'false' });
+  function temaAtual() {
+    var forcado = document.documentElement.getAttribute('data-theme');
+    if (forcado) return forcado;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function rotularTema() {
+    var t = temaAtual();
+    temaBtn.textContent = t === 'dark' ? 'Ver em papel' : 'Ver no monitor';
+    temaBtn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+  }
+  temaBtn.addEventListener('click', function () {
+    var novo = temaAtual() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', novo);
+    try { localStorage.setItem('prodtester-tema', novo); } catch (e) {}
+    rotularTema();
+  });
+  try { var salvo = localStorage.getItem('prodtester-tema'); if (salvo) document.documentElement.setAttribute('data-theme', salvo); } catch (e) {}
+  rotularTema();
+
+  var meta = D.meta || {};
+  var dataExec = new Date(D.gerado_em);
+  var modosRodados = Object.keys(D.placar.modos).filter(function (k) { return D.placar.modos[k].avaliado; }).map(function (k) { return MODOS[k]; });
+  raiz.appendChild(h('header', { class: 'topo' },
+    h('div', null,
+      h('div', { class: 'tipo', texto: meta.revalidacao_de ? 'Laudo de revalidação' : 'Laudo de auditoria' }),
+      h('h1', { texto: meta.sistema || meta.alvo || 'Sistema auditado' })),
+    temaBtn));
+  var ident = h('dl', { class: 'identificacao' });
+  [
+    ['Endereço examinado', meta.alvo],
+    ['Ambiente', AMBIENTE[meta.ambiente] || meta.ambiente],
+    ['Perfil', PERFIL[meta.perfil] || meta.perfil],
+    ['Exames realizados', modosRodados.length ? modosRodados.join(', ') : 'nenhum'],
+    ['Data', isNaN(dataExec) ? D.execucao : dataExec.toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' })],
+    meta.revalidacao_de ? ['Revalidação de', meta.revalidacao_de] : null
+  ].filter(Boolean).forEach(function (par) {
+    if (par[1]) ident.appendChild(h('div', null, h('dt', { texto: par[0] }), h('dd', { texto: par[1] })));
+  });
+  raiz.appendChild(ident);
+
+  // Monitor
+  var P = D.placar;
+  var leitura = h('div', { class: 'leitura' },
+    h('div', { class: 'rotulo', texto: 'Placar de saúde' }),
+    P.geral === null ? h('p', { class: 'vazio', texto: 'Nenhum exame avaliado.' }) : digitos(String(P.geral).padStart(2, '0'), 96, 'Placar ' + P.geral + ' de 100'),
+    P.faixa ? h('div', { class: 'faixa', texto: P.faixa }) : null,
+    P.teto_critico ? h('p', { class: 'suave pequeno', texto: 'Limitado a 59 porque há achado crítico.' }) : null);
+  var listaModos = h('ul', { class: 'modos', 'aria-label': 'Nota por exame' });
+  Object.keys(P.modos).forEach(function (k) {
+    var m = P.modos[k];
+    listaModos.appendChild(m.avaliado
+      ? h('li', null, h('span', { texto: MODOS[k] }), h('span', { class: 'barra', role: 'presentation' }, h('span', { style: 'width:' + m.nota + '%' })), h('strong', { texto: String(m.nota) }))
+      : h('li', null, h('span', { texto: MODOS[k] }), h('span', { class: 'na', texto: 'não avaliado' })));
+  });
+  leitura.appendChild(listaModos);
+
+  var C = D.carga;
+  var areaTraco = h('div', { class: 'traco-area' },
+    h('div', { class: 'rotulo suave pequeno', texto: 'Teste de esforço: tempo de resposta (p95) a cada degrau de usuários' }),
+    tracado(C ? C.curva : null, C && C.limites ? C.limites.p95_ms : 500, C ? C.ponto_de_quebra : null));
+  var cap = D.capacidade;
+  var depois = D.capacidade_depois;
+  var blocoCap = h('div', { class: 'capacidade' },
+    h('div', null,
+      h('div', { class: 'suave pequeno', texto: 'Capacidade medida' }),
+      h('strong', { texto: cap ? cap.texto : C && C.volumes && C.volumes.length ? 'Perfil local-first: veja o tempo das telas pesadas por volume de dados no teste de esforço.' : 'Teste de esforço não realizado.' }),
+      C && C.ponto_de_quebra ? h('div', { class: 'suave pequeno', texto: 'Quebra com ' + C.ponto_de_quebra.usuarios + ' usuários: ' + C.ponto_de_quebra.motivo + '.' }) : null),
+    h('div', { class: 'depois' + (depois ? ' medida' : '') },
+      h('div', { class: 'suave pequeno', texto: 'Depois das correções prioritárias' }),
+      h('strong', { texto: depois ? (depois.pelo_menos ? 'Pelo menos ' : '~') + depois.usuarios + ' usuários simultâneos, medido na revalidação.' : 'A medir com /prodtester:revalidar.' })));
+  raiz.appendChild(h('div', { class: 'monitor', role: 'region', 'aria-label': 'Resultado' }, h('div', { class: 'monitor-corpo' }, leitura, areaTraco), blocoCap));
+
+  // Principais achados
+  var cont = D.contagem || {};
+  var resumoSev = h('div', { class: 'contagem' },
+    ['critica', 'alta', 'media', 'baixa'].map(function (sv) {
+      return h('span', { class: 'sev-' + sv, style: 'color:var(--cor)' }, plural(cont[sv] || 0, SEV[sv].toLowerCase(), SEV[sv].toLowerCase() + 's'));
+    }));
+  var secAchados = secao('achados', 'Principais achados', resumoSev);
+  if (!D.top5.length) secAchados.appendChild(h('p', { class: 'vazio', texto: 'Nenhum problema encontrado nos exames realizados.' }));
+  D.top5.forEach(function (id) { secAchados.appendChild(cartaoAchado(achadoPorId[id])); });
+  if (D.achados.length > 5) secAchados.appendChild(h('p', { class: 'suave pequeno', texto: 'Mais ' + plural(D.achados.length - 5, 'achado está', 'achados estão') + ' na conduta, abaixo.' }));
+  raiz.appendChild(secAchados);
+
+  function cartaoAchado(a) {
+    var onde = [a.onde && a.onde.fluxo ? 'fluxo ' + a.onde.fluxo : null, a.onde && a.onde.endpoint ? a.onde.endpoint : null, a.onde && a.onde.arquivo ? a.onde.arquivo : null].filter(Boolean).join(' · ');
+    var evs = h('ul', { class: 'evidencias' });
+    (a.evidencias || []).forEach(function (ev) {
+      evs.appendChild(h('li', null, h('span', { class: 'tipo', texto: (EVIDENCIA[ev.tipo] || ev.tipo) + ': ' }), ev.resumo || ev.ref || '',
+        ev.imagem ? imagem(ev.imagem, ev.resumo || a.titulo) : null));
+    });
+    var causa = a.causa_raiz ? h('p', { class: 'causa' },
+      h('span', { class: 'selo selo-' + a.causa_raiz.status, texto: a.causa_raiz.status === 'confirmada' ? 'causa confirmada' : 'causa provável' }),
+      a.causa_raiz.descricao || '') : null;
+    return h('article', { class: 'achado sev-' + a.severidade },
+      h('div', { class: 'achado-cab' }, h('span', { class: 'marca-sev', texto: SEV[a.severidade] }), h('h3', { texto: a.titulo }), h('span', { class: 'id', texto: a.id })),
+      onde ? h('div', { class: 'onde', texto: onde }) : null,
+      evs, causa,
+      a.correcao && a.correcao.resumo ? h('p', { class: 'causa' }, h('strong', { texto: 'Correção: ' }), a.correcao.resumo) : null);
+  }
+
+  // Personas
+  if (D.personas && D.personas.length) {
+    var secP = secao('personas', 'Exame com personas');
+    secP.appendChild(h('p', { class: 'suave', texto: 'Usuários sintéticos navegaram pelos fluxos críticos, cada um com seu jeito de usar, seu aparelho e sua paciência.' }));
+    var M = D.matriz;
+    if (M && M.fluxos && M.fluxos.length) {
+      var tab = h('table', null,
+        h('thead', null, h('tr', null, h('th', { scope: 'col', texto: 'Fluxo' }),
+          M.personas.map(function (p) { return h('th', { scope: 'col', class: 'c persona-cab' }, h('span', { class: 'emoji', 'aria-hidden': 'true', texto: p.emoji }), p.nome); }))),
+        h('tbody', null, M.fluxos.map(function (f) {
+          return h('tr', null, h('th', { scope: 'row', texto: f.nome }), M.personas.map(function (p) {
+            var c = M.celulas[f.id] && M.celulas[f.id][p.id];
+            if (!c) return h('td', { class: 'c suave', texto: '—' });
+            var r = RES[c.resultado] || ['?', c.resultado];
+            return h('td', { class: 'c', title: c.motivo || r[1] }, h('span', { 'aria-label': r[1], texto: r[0] }), ' ', h('span', { class: 'suave pequeno', texto: (c.passos == null ? '–' : c.passos) + ' passos' }));
+          }));
+        })));
+      secP.appendChild(h('div', { class: 'rolagem' }, tab));
+    }
+    var lista = h('div', { class: 'personas' });
+    D.personas.forEach(function (p) {
+      var fluxos = (p.resumo && p.resumo.fluxos) || [];
+      var resultado = fluxos.map(function (f) { return (RES[f.resultado] || ['?'])[0]; }).join(' ');
+      var det = h('details', { class: 'persona' },
+        h('summary', null,
+          h('span', { class: 'emoji-grande', 'aria-hidden': 'true', texto: p.emoji }),
+          h('span', null, h('strong', { texto: p.nome + (p.idade ? ', ' + p.idade : '') }), p.bordao ? h('div', { class: 'bordao', texto: p.bordao }) : null,
+            p.dispositivo ? h('div', { class: 'suave pequeno', texto: p.dispositivo }) : null),
+          h('span', { class: 'resultado', texto: resultado || '—' })));
+      var ol = h('ol', { class: 'linha-tempo' });
+      p.passos.forEach(function (passo) {
+        ol.appendChild(h('li', { class: passo.erros && passo.erros.length ? 'com-erro' : '' },
+          h('div', { class: 'passo-n', texto: 'Passo ' + passo.n + (passo.fluxo ? ' · ' + passo.fluxo : '') }),
+          passo.reacao ? h('p', { class: 'fala', texto: passo.reacao }) : null,
+          h('p', { class: 'viu' }, h('strong', { texto: passo.acao ? passo.acao + '. ' : '' }), passo.viu || ''),
+          passo.erros && passo.erros.length ? h('p', { class: 'erros-passo', texto: passo.erros.join(' · ') }) : null,
+          passo.screenshot ? imagem(passo.screenshot, p.nome + ', passo ' + passo.n) : null));
+      });
+      if (!p.passos.length) ol.appendChild(h('li', null, h('p', { class: 'vazio', texto: 'Sem passos registrados.' })));
+      det.appendChild(ol);
+      lista.appendChild(det);
+    });
+    secP.appendChild(lista);
+    raiz.appendChild(secP);
+  }
+
+  // API
+  if (D.api && D.api.tabela) {
+    var T = D.api.tabela, R = D.api.resumo || {};
+    var NOMES = { caminho_feliz: 'Caminho feliz', validacao: 'Validação', autenticacao: 'Autenticação', isolamento: 'Isolamento', idempotencia: 'Idempotência', limites: 'Limites' };
+    var secA = secao('api', 'Exame da API', h('span', { class: 'suave pequeno', texto: R.passaram + ' de ' + R.casos + ' casos passaram' }));
+    secA.appendChild(h('div', { class: 'rolagem' }, h('table', null,
+      h('thead', null, h('tr', null, h('th', { scope: 'col', texto: 'Endpoint' }), T.tipos.map(function (t) { return h('th', { scope: 'col', class: 'c', texto: NOMES[t] || t }); }), h('th', { scope: 'col', texto: 'Tempo máx.' }))),
+      h('tbody', null, T.endpoints.map(function (e) {
+        return h('tr', null, h('th', { scope: 'row' }, h('code', { texto: e.endpoint })),
+          T.tipos.map(function (t) { return h('td', { class: 'c', texto: e.celulas[t] }); }),
+          h('td', { texto: ms(e.tempo_max_ms) + (e.lento ? ' (lento)' : '') }));
+      })))));
+    var falhas = (D.api.casos || []).filter(function (c) { return !c.passou; });
+    if (falhas.length) {
+      secA.appendChild(h('h3', { texto: 'Casos que falharam', style: 'margin-top:22px' }));
+      secA.appendChild(h('div', { class: 'rolagem' }, h('table', null,
+        h('thead', null, h('tr', null, ['Caso', 'Endpoint', 'O que foi testado', 'Resultado'].map(function (t) { return h('th', { scope: 'col', texto: t }); }))),
+        h('tbody', null, falhas.map(function (c) {
+          return h('tr', null, h('td', { texto: c.id }), h('td', null, h('code', { texto: c.endpoint })), h('td', { texto: c.descricao }),
+            h('td', null, c.obtido ? 'status ' + c.obtido.status + ' em ' + ms(c.obtido.tempo_ms) + '. ' : 'não executado. ', h('span', { class: 'suave', texto: c.falhas.join('; ') })));
+        })))));
+    }
+    raiz.appendChild(secA);
+  }
+
+  // Carga
+  if (C) {
+    var secC = secao('carga', 'Teste de esforço');
+    secC.appendChild(h('p', { class: 'suave', texto: 'Usuários virtuais percorreram as jornadas reais, com pausas humanas, em degraus cada vez mais pesados.' }));
+    var graficos = h('div', { class: 'graficos' });
+    if (C.curva && C.curva.length) {
+      graficos.appendChild(h('figure', { class: 'grafico' }, tracado(C.curva, C.limites ? C.limites.p95_ms : 500, C.ponto_de_quebra, { altura: 280, rotulo: 'p95 por degrau de usuários' }),
+        h('figcaption', { texto: 'Cada pulso é um degrau medido. Círculo cheio: passou do limite de p95 ou de erro. Pontilhado: gerador saturado, número descartado.' })));
+      graficos.appendChild(h('figure', { class: 'grafico' }, barrasErro(C.curva), h('figcaption', { texto: 'Taxa de erro em cada degrau.' })));
+    }
+    secC.appendChild(graficos);
+    if (C.curva && C.curva.length) {
+      secC.appendChild(h('div', { class: 'rolagem', style: 'margin-top:18px' }, h('table', null,
+        h('thead', null, h('tr', null, ['Usuários', 'p50', 'p95', 'Erro', 'Req/s', ''].map(function (t) { return h('th', { scope: 'col', texto: t }); }))),
+        h('tbody', null, C.curva.map(function (p) {
+          return h('tr', null, h('td', { texto: String(p.vus) }), h('td', { texto: ms(p.p50_ms) }), h('td', { texto: ms(p.p95_ms) }), h('td', { texto: pct(p.taxa_erro) }),
+            h('td', { texto: p.rps ? Math.round(p.rps) : '–' }), h('td', { texto: p.valido === false ? '⚠️ descartado' : p.dentro_dos_limites ? '✅' : '❌' }));
+        })))));
+    }
+    if (C.passos_mais_lentos && C.passos_mais_lentos.length) {
+      secC.appendChild(h('h3', { texto: 'Onde o tempo vai', style: 'margin-top:26px' }));
+      secC.appendChild(h('figure', { class: 'grafico grafico-passos' }, barrasPassos(C.passos_mais_lentos), h('figcaption', { texto: 'p95 de cada passo das jornadas durante a etapa mais pesada.' })));
+    }
+    (C.disputas || []).forEach(function (d) {
+      var cor = d.passou === true ? 'var(--ok)' : d.passou === false ? 'var(--critica)' : 'var(--media)';
+      secC.appendChild(h('div', { class: 'disputa', style: '--cor:' + cor },
+        h('h3', { texto: 'Disputa: ' + (d.descricao || d.id) }),
+        h('p', { texto: d.usuarios + ' usuários ao mesmo tempo. ' + plural(d.sucessos, 'requisição deu certo', 'requisições deram certo') + '; valor verificado foi de ' + d.verificacao_antes + ' para ' + d.verificacao_depois + '.' }),
+        h('p', { class: 'marca-sev', style: 'color:' + cor, texto: d.passou === true ? 'Sem violação.' : d.passou === false ? d.violacoes.join('; ') + '.' : 'Inconclusiva: ' + (d.inconclusiva || []).join('; ') + '.' })));
+    });
+    if (C.volumes && C.volumes.length) {
+      secC.appendChild(h('h3', { texto: 'Volume de dados', style: 'margin-top:26px' }));
+      secC.appendChild(h('div', { class: 'rolagem' }, h('table', null,
+        h('thead', null, h('tr', null, ['Volume', 'p95', 'Erro', 'Memória do sistema (máx.)'].map(function (t) { return h('th', { scope: 'col', texto: t }); }))),
+        h('tbody', null, C.volumes.map(function (v) {
+          return h('tr', null, h('td', { texto: v.volume }), h('td', { texto: ms(v.p95_ms) }), h('td', { texto: pct(v.taxa_erro) }), h('td', { texto: v.memoria_alvo_mb ? v.memoria_alvo_mb.max + ' MB' : 'não medida' }));
+        })))));
+    }
+    (C.alertas || []).forEach(function (a) { secC.appendChild(h('p', { class: 'alerta', texto: a })); });
+    raiz.appendChild(secC);
+  }
+
+  function barrasErro(curva) {
+    var W = 400, H = 280, m = { e: 46, d: 10, t: 16, b: 34 };
+    var maiorErro = Math.max.apply(null, curva.map(function (p) { return p.taxa_erro || 0; }));
+    var maxE = Math.max(0.05, maiorErro);
+    var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Taxa de erro por degrau' });
+    if (maiorErro === 0) svg.appendChild(s('text', { x: (W + m.e) / 2, y: H / 2, 'text-anchor': 'middle', class: 'eixo', texto: 'Nenhum erro em nenhum degrau' }));
+    var bw = (W - m.e - m.d) / curva.length;
+    [0, 0.5, 1].forEach(function (f) {
+      var y = H - m.b - f * (H - m.t - m.b);
+      svg.appendChild(s('line', { x1: m.e, x2: W - m.d, y1: y, y2: y, class: 'grade-linha' }));
+      svg.appendChild(s('text', { x: m.e - 6, y: y + 4, 'text-anchor': 'end', class: 'eixo', texto: (maxE * f * 100).toFixed(1) + '%' }));
+    });
+    curva.forEach(function (p, i) {
+      var alt = ((p.taxa_erro || 0) / maxE) * (H - m.t - m.b);
+      var r = s('rect', { x: m.e + i * bw + bw * 0.2, y: H - m.b - alt, width: bw * 0.6, height: Math.max(alt, 0.5), class: 'barra-erro' });
+      r.appendChild(s('title', { texto: p.vus + ' usuários: erro ' + pct(p.taxa_erro) }));
+      svg.appendChild(r);
+      svg.appendChild(s('text', { x: m.e + i * bw + bw / 2, y: H - 12, 'text-anchor': 'middle', class: 'eixo', texto: String(p.vus) }));
+    });
+    return svg;
+  }
+  function barrasPassos(passos) {
+    var W = 640, linha = 30, m = { e: 190, d: 70 };
+    var H = passos.length * linha + 10;
+    var max = Math.max.apply(null, passos.map(function (p) { return p.p95_ms || 0; })) || 1;
+    var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'p95 por passo' });
+    passos.forEach(function (p, i) {
+      var y = i * linha + 6, w = ((p.p95_ms || 0) / max) * (W - m.e - m.d);
+      svg.appendChild(s('text', { x: m.e - 10, y: y + 15, 'text-anchor': 'end', class: 'eixo', texto: p.passo }));
+      svg.appendChild(s('rect', { x: m.e, y: y + 4, width: Math.max(w, 1), height: 14, rx: 2, class: 'barra-passo' }));
+      svg.appendChild(s('text', { x: m.e + w + 8, y: y + 15, class: 'eixo', texto: ms(p.p95_ms) }));
+    });
+    return svg;
+  }
+
+  // Conduta
+  if (D.plano && D.plano.grupos && D.plano.grupos.length) {
+    var secCo = secao('conduta', 'Conduta: plano de correção');
+    secCo.appendChild(h('p', { class: 'suave', texto: 'Na ordem em que vale a pena corrigir. Nada foi aplicado no seu código: cada correção é uma proposta para revisar.' }));
+    var DESC = {
+      critico: 'Perda de dados, dinheiro ou acesso indevido. Resolva antes de qualquer outra coisa.',
+      'ganho-rapido': 'Muito efeito com pouco trabalho.',
+      estrutural: 'Mudanças maiores. Cada uma traz um paliativo para já.',
+      melhoria: 'Ajustes que deixam o produto melhor.'
+    };
+    var contador = 0;
+    D.plano.grupos.forEach(function (g) {
+      var bloco = h('div', { class: 'grupo' }, h('h3', { texto: g.titulo.split(':')[0] }), h('p', { class: 'suave', texto: DESC[g.prioridade] || '' }));
+      var ol = h('ol', { class: 'itens', style: '--inicio:' + contador });
+      g.itens.forEach(function (i) {
+        contador += 1;
+        var a = achadoPorId[i.id] || {};
+        var corr = a.correcao || {};
+        var li = h('li', { class: 'sev-' + i.severidade },
+          h('div', null,
+            h('strong', { texto: i.titulo }),
+            h('div', { class: 'item-meta' },
+              h('span', { class: 'marca-sev', texto: SEV[i.severidade] }), ' · ', i.id, ' · ', i.camada || 'camada a definir', ' · ',
+              h('span', { class: 'selo selo-' + (i.causa || 'hipotese'), texto: i.causa === 'confirmada' ? 'causa confirmada' : 'causa provável' })),
+            i.correcao ? h('p', { texto: i.correcao }) : null,
+            corr.passos && corr.passos.length ? h('ol', { class: 'passos-infra' }, corr.passos.map(function (p) { return h('li', { texto: p }); })) : null,
+            corr.risco ? h('p', { class: 'suave pequeno' }, h('strong', { texto: 'Risco: ' }), corr.risco) : null,
+            corr.custo_infra ? h('p', { class: 'suave pequeno' }, h('strong', { texto: 'Custo: ' }), corr.custo_infra) : null,
+            i.revalidar_com ? h('p', { class: 'suave pequeno' }, h('strong', { texto: 'Como provar: ' }), i.revalidar_com) : null,
+            D.diffs && D.diffs[i.id] ? h('details', { class: 'diff' }, h('summary', { texto: 'Ver o diff proposto' }), blocoDiff(D.diffs[i.id])) : null));
+        ol.appendChild(li);
+      });
+      bloco.appendChild(ol);
+      secCo.appendChild(bloco);
+    });
+    raiz.appendChild(secCo);
+  } else if (D.achados && D.achados.length) {
+    var secT = secao('conduta', 'Todos os achados');
+    D.achados.forEach(function (a) { secT.appendChild(cartaoAchado(a)); });
+    raiz.appendChild(secT);
+  }
+
+  // Antes e depois
+  if (D.revalidacao && D.revalidacao.itens && D.revalidacao.itens.length) {
+    var NOME_RES = { corrigido: 'corrigido', melhorou: 'melhorou', 'sem-mudanca': 'sem mudança', piorou: 'piorou', inconclusivo: 'inconclusivo' };
+    var resumoR = D.revalidacao.resumo || {};
+    var secR = secao('antes-depois', 'Antes e depois', h('span', { class: 'suave pequeno', texto: Object.keys(resumoR).map(function (k) { return resumoR[k] + ' ' + (NOME_RES[k] || k); }).join(', ') }));
+    function curto(o) {
+      if (o.passou !== undefined && o.status !== undefined) return (o.passou ? 'passou' : 'falhou') + ' (status ' + o.status + (o.criados !== undefined ? ', ' + o.criados + ' criados' : '') + ')';
+      if (o.usuarios !== undefined) return (o.pelo_menos ? 'pelo menos ' : '~') + o.usuarios + ' usuários';
+      if (o.p95_ms !== undefined) return 'p95 ' + ms(o.p95_ms) + ', erro ' + pct(o.taxa_erro);
+      if (o.sucessos !== undefined) return o.sucessos + ' sucessos, ' + (o.verificacao || []).join(' → ');
+      return (RES[o.resultado] || ['', o.resultado])[1] + (o.passos != null ? ', ' + o.passos + ' passos' : '');
+    }
+    secR.appendChild(h('div', { class: 'rolagem' }, h('table', null,
+      h('thead', null, h('tr', null, ['O que foi medido', 'Antes', 'Depois', 'Resultado'].map(function (t) { return h('th', { scope: 'col', texto: t }); }))),
+      h('tbody', null, D.revalidacao.itens.map(function (i) {
+        return h('tr', null, h('td', { texto: i.descricao }), h('td', { texto: curto(i.antes) }), h('td', { texto: curto(i.depois) }),
+          h('td', { class: 'res-' + i.resultado, texto: NOME_RES[i.resultado] || i.resultado }));
+      })))));
+    raiz.appendChild(secR);
+  }
+
+  // Limites e método
+  var secM = secao('metodo', 'Limites e método');
+  secM.classList.add('metodo');
+  secM.appendChild(h('ul', null, (D.limites || []).map(function (l) { return h('li', { texto: l }); })));
+  var pen = D.penalidades, pes = D.pesos;
+  secM.appendChild(h('h3', { texto: 'Como o placar é calculado', style: 'margin-top:18px' }));
+  secM.appendChild(h('p', { texto: 'Cada achado tira pontos da nota do exame em que apareceu: crítico ' + pen.critica + ', alto ' + pen.alta + ', médio ' + pen.media + ', baixo ' + pen.baixa + '. A nota de cada exame vai de 0 a 100. O placar é a média ponderada dos exames realizados (personas ' + pes.personas + ', API ' + pes.api + ', carga ' + pes.carga + '); exames não realizados não entram na conta. Com algum achado crítico, o placar fica em no máximo 59.' }));
+  if (meta.perfil_evidencias && meta.perfil_evidencias.length) {
+    secM.appendChild(h('p', { class: 'suave pequeno', texto: 'Perfil detectado por: ' + meta.perfil_evidencias.join('; ') + '.' }));
+  }
+  raiz.appendChild(secM);
+
+  raiz.appendChild(h('footer', null,
+    h('span', { texto: 'Gerado pelo prodtester' + (D.versao ? ' ' + D.versao : '') }),
+    h('span', { texto: 'Execução ' + D.execucao })));
+})();
+</script>
+</body>
+</html>
