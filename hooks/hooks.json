@@ -1,5 +1,5 @@
 {
-  "description": "Aprova automaticamente só as ferramentas dos navegadores do prodtester, o script de registro das personas e a leitura dos arquivos do próprio plugin.",
+  "description": "Aprova automaticamente só as ferramentas dos navegadores do prodtester, os scripts de auditoria do plugin e a leitura dos arquivos do próprio plugin.",
   "hooks": {
     "PreToolUse": [
       {

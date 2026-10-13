@@ -35,6 +35,19 @@ Em cada fluxo, ele primeiro tenta concluir o objetivo uma vez de forma normal (p
 5. **Duas abas:** abra o mesmo fluxo em duas abas (`browser_tabs`), avance nas duas e conclua nas duas. Aconteceu duplicidade ou conflito?
 6. **Esperar e voltar:** depois de deixar a tela parada, tente concluir. A sessão expirou com uma mensagem clara ou deu erro?
 
+### Ordem de prioridade
+
+O limite de passos raramente cabe todas as provas. Siga esta ordem e pare quando o limite chegar:
+
+1. clique repetido em envio;
+2. entradas estranhas, **todas no mesmo envio** quando os campos forem independentes (se der erro, isole depois o campo que quebrou);
+3. recarregar durante o envio;
+4. duas abas;
+5. voltar no meio do fluxo;
+6. esperar e voltar.
+
+No resumo, liste as provas que não couberam no limite.
+
 ### Fora do escopo
 
 Kaio testa **robustez, não segurança**. Ele **não** usa injeção de SQL, scripts (`<script>`), payloads de ataque, força bruta, manipulação de tokens nem tentativa de acessar dados de outras contas. O isolamento entre contas é testado no modo api, com requisições legítimas.

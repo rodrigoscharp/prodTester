@@ -6,6 +6,8 @@ Se o `testes-fluxos.yaml` definir `sistema.perfil` com um valor diferente de `au
 
 ## Como detectar
 
+**Ausência de sinais não define perfil.** Um app web sem login, sem banco ou sem `tenant_id` não é automaticamente local-first: pode ser uma loja, um site público ou um protótipo multiusuário. Só classifique como local-first com pelo menos um sinal forte positivo da lista dele. Sem sinais fortes de nenhum perfil, use **SaaS multiusuário** (o mais conservador: mantém personas, api e carga) e registre "perfil por padrão, sem sinais fortes" nas evidências.
+
 Procure os sinais abaixo no código, na documentação e na infraestrutura. Conte os sinais de cada perfil. O perfil com mais sinais fortes vence. Em caso de empate ou dúvida, pergunte ao usuário, mostrando os sinais encontrados.
 
 ### SaaS multiusuário / multi-tenant
@@ -25,7 +27,8 @@ Sinais de apoio:
 
 Sinais fortes:
 - Empacotamento desktop: Electron, Tauri, Wails, ou instruções de "rodar localmente" como forma principal de uso.
-- Ausência de cadastro público; um único usuário fixo ou autenticação apenas local.
+- Documentação dizendo que o app roda na máquina do próprio usuário, para uma pessoa só.
+- Um único usuário fixo no código ou autenticação apenas local (sinal de apoio, nunca suficiente sozinho).
 - Banco embutido ou local (SQLite, PGlite, IndexedDB, Postgres no `docker-compose` da própria máquina) sem configuração de hospedagem remota.
 - Integração com LLM local (Ollama, llama.cpp, LM Studio, vLLM em `localhost`).
 - `docker-compose.yml` como única infraestrutura, sem Terraform, Kubernetes ou configuração de plataforma.

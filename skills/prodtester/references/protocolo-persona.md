@@ -94,7 +94,7 @@ Ao encerrar, narre (`sucesso`, `abandono` ou `problema`) e passe para o próximo
 
 ## Requisições de API
 
-Ao fim de cada fluxo, chame `browser_network_requests` (sem estáticos) e registre cada requisição à API do sistema (as que devolvem JSON ou que usam métodos diferentes de `GET`) com `registrar.mjs <pasta> requisicao`, no formato de `formato-dados.md`. Para ver o payload, os cabeçalhos e o tempo de uma requisição, use `browser_network_request` com o número dela.
+Ao fim de cada fluxo, chame `browser_network_requests` (sem estáticos) e registre **cada** requisição à API do sistema (as que devolvem JSON ou que usam métodos diferentes de `GET`) com `registrar.mjs <pasta> requisicao`, **inclusive as repetidas**: quando um clique repetido gera 4 `POST`, registre os 4, porque a contagem é evidência, no formato de `formato-dados.md`. Para ver o payload, os cabeçalhos e o tempo de uma requisição, use `browser_network_request` com o número dela. Copie o `payload_exemplo` exatamente como foi enviado, com os mesmos tipos (texto continua texto, número continua número).
 
 ## Ao terminar todos os fluxos
 

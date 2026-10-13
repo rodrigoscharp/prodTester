@@ -5,8 +5,9 @@
 // paralelo sem interrupção:
 //   1. ferramentas dos navegadores do próprio prodtester (servidores pw-*),
 //      exceto as que executam código arbitrário ou enviam arquivos locais;
-//   2. o comando simples `node <plugin>/skills/prodtester/scripts/registrar.mjs ...`,
-//      sem encadeamento, redirecionamento ou expansão de shell;
+//   2. o comando simples `node <plugin>/skills/prodtester/scripts/<script>.mjs ...`
+//      para os scripts listados em SCRIPTS, sem encadeamento, redirecionamento
+//      ou expansão de shell;
 //   3. a leitura (Read) de arquivos dentro da pasta do próprio plugin, onde
 //      ficam as personas, o protocolo e as referências.
 // Qualquer outra chamada segue o fluxo normal de permissões do Claude Code.
@@ -16,6 +17,8 @@ import { relative, resolve, isAbsolute } from 'node:path';
 
 const NAVEGADOR = /^mcp__plugin_prodtester_pw-(cida|leo|jessica|marcos|kaio|extra-1|extra-2)__browser_[a-z_]+$/;
 const NAVEGADOR_EXCLUIDAS = new Set(['browser_run_code_unsafe', 'browser_file_upload']);
+// Scripts do plugin que só leem e escrevem dentro da pasta da auditoria.
+const SCRIPTS = ['registrar.mjs', 'preparar-personas.mjs', 'consolidar-personas.mjs', 'validar.mjs'];
 
 function aprovar(motivo) {
   process.stdout.write(
@@ -95,9 +98,10 @@ if (navegador) {
 
 if (ferramenta === 'Bash' && process.env.CLAUDE_PLUGIN_ROOT) {
   const partes = palavras(String(entrada.tool_input?.command ?? '').trim());
-  if (partes && partes.length >= 4 && partes[0] === 'node') {
-    const esperado = caminhoReal(resolve(process.env.CLAUDE_PLUGIN_ROOT, 'skills/prodtester/scripts/registrar.mjs'));
-    if (caminhoReal(partes[1]) === esperado) aprovar('Registro de fala ou passo de persona do prodtester');
+  if (partes && partes.length >= 3 && partes[0] === 'node') {
+    const pastaScripts = caminhoReal(resolve(process.env.CLAUDE_PLUGIN_ROOT, 'skills/prodtester/scripts'));
+    const script = SCRIPTS.find((nome) => caminhoReal(partes[1]) === resolve(pastaScripts, nome));
+    if (script) aprovar(`Script ${script} do prodtester`);
   }
 }
 

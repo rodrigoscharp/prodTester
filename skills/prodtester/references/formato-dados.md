@@ -16,8 +16,10 @@ auditoria/
     ├── personas/<id>/
     │   ├── passos.jsonl            # um passo por linha
     │   ├── resumo.json             # resultado de cada fluxo para esta persona
+    │   ├── requisicoes.json        # requisições que esta persona capturou
     │   └── screenshots/*.png
-    ├── requisicoes.json            # requisições capturadas durante a navegação
+    ├── requisicoes.json            # requisições consolidadas (uma por método + rota)
+    ├── matriz.json                 # resultado de cada fluxo para cada persona
     ├── testes/
     │   ├── api.k6.js               # gerado no modo api
     │   └── carga.k6.js             # gerado no modo carga
@@ -116,7 +118,9 @@ Valores de `persona`: o `id` da persona (`novato`, `apressado`, `celular-3g`, `s
 
 Valores de `resultado`: `concluiu` (✅), `concluiu_com_problemas` (⚠️), `falhou` (❌), `abandonou` (❌), `nao_executado` (—).
 
-## `requisicoes.json`
+## `personas/<id>/requisicoes.json`
+
+Gravado pela persona, uma entrada por requisição observada:
 
 ```json
 [
@@ -135,7 +139,43 @@ Valores de `resultado`: `concluiu` (✅), `concluiu_com_problemas` (⚠️), `fa
 ]
 ```
 
-A `rota` é normalizada: identificadores viram parâmetros (`/api/produtos/42` vira `/api/produtos/:id`). Requisições de arquivos estáticos (imagens, CSS, JS, fontes) ficam fora.
+Requisições de arquivos estáticos (imagens, CSS, JS, fontes) ficam fora.
+
+## `requisicoes.json`
+
+Gerado por `consolidar-personas.mjs`, uma entrada por método + rota. A `rota` é normalizada: identificadores viram parâmetros (`/api/produtos/42` vira `/api/produtos/:id`).
+
+```json
+[
+  {
+    "metodo": "POST",
+    "rota": "/api/pedidos",
+    "ocorrencias": 6,
+    "status_vistos": [201, 500],
+    "fluxos": ["comprar"],
+    "personas": ["novato", "quebrador"],
+    "autenticacao": "cookie",
+    "tipo_conteudo": "application/json",
+    "url_exemplo": "http://localhost:3000/api/pedidos",
+    "payload_exemplo": { "itens": [{ "produto_id": 7, "quantidade": 1 }] },
+    "tempo_ms": { "min": 120, "mediana": 143, "max": 812, "amostras": 6 }
+  }
+]
+```
+
+## `matriz.json`
+
+Gerado por `consolidar-personas.mjs`:
+
+```json
+{
+  "fluxos": [{ "id": "comprar", "nome": "Comprar um produto" }],
+  "personas": [{ "id": "novato", "nome": "Dona Cida", "emoji": "👵", "cor": "magenta" }],
+  "celulas": {
+    "comprar": { "novato": { "resultado": "concluiu", "passos": 6, "motivo": null, "achados": [] } }
+  }
+}
+```
 
 ## `achados.json`
 
@@ -177,6 +217,7 @@ Um objeto por problema. Todo achado precisa de pelo menos uma evidência.
 
 ### Campos com valores fixos
 
+- `evidencias[].tipo`: `screenshot`, `requisicao`, `k6`, `console`, `explain`, `log`, `codigo`, `passo`, `medicao`. Os tipos `screenshot`, `k6`, `explain` e `log` apontam para um arquivo da execução, e `validar.mjs` confere se ele existe.
 - `modo`: `personas`, `api`, `carga`, `volume`, `preparacao`.
 - `categoria`: `bug`, `ux`, `acessibilidade`, `mobile`, `mensagem-de-erro`, `validacao`, `autenticacao`, `isolamento`, `idempotencia`, `disputa`, `limites`, `desempenho`, `escalabilidade`, `infra`, `robustez`.
 - `camada`: `codigo`, `banco`, `infra`, `arquitetura`, `conteudo`.

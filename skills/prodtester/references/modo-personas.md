@@ -29,14 +29,13 @@ Se o usuário descreveu o público, gere cada persona seguindo `<skill>/personas
 
 ## 2. Preparar as pastas
 
-Para cada persona escalada:
+Para as personas personalizadas, escreva antes `<execucao>/personas/<id>/persona.md`. Depois, prepare todas de uma vez:
 
 ```bash
-mkdir -p <execucao>/personas/<id>/screenshots
-cp <skill>/personas/<id>.md <execucao>/personas/<id>/persona.md   # personas padrão
+node <skill>/scripts/preparar-personas.mjs <execucao> novato apressado celular-3g so-teclado quebrador
 ```
 
-As personalizadas são escritas direto em `<execucao>/personas/<id>/persona.md`.
+O script cria `personas/<id>/screenshots` e copia o arquivo de cada persona padrão para `personas/<id>/persona.md`.
 
 ## 3. Definir as credenciais
 
@@ -92,10 +91,23 @@ Se uma persona voltar com fluxo `bloqueado` por ação irreversível não previs
 
 Quando todas terminarem:
 
-1. **Requisições:** junte os `personas/*/requisicoes.json` em `<execucao>/requisicoes.json`, removendo duplicatas pela combinação `metodo` + `rota` (mantenha o exemplo com payload mais completo e o maior e o menor tempo observados).
-2. **Matriz fluxo × persona:** leia os `personas/*/resumo.json`. Ela vai para o relatório.
-3. **Achados:** transforme os problemas relatados pelas personas em entradas de `achados.json` com `modo: "personas"`. Um mesmo problema visto por várias personas vira **um** achado, com todas as evidências. Classifique a severidade pela tabela de `formato-dados.md`. A causa raiz fica para o diagnóstico; por enquanto, preencha `causa_raiz.status` como `hipotese` só se a persona trouxe indício, ou deixe `causa_raiz` nulo.
-4. Mostre ao usuário a matriz fluxo × persona e os achados mais graves, em poucas linhas.
+1. **Requisições e matriz:** rode
+   ```bash
+   node <skill>/scripts/consolidar-personas.mjs <execucao>
+   ```
+   O script junta os `personas/*/requisicoes.json` em `<execucao>/requisicoes.json` (uma entrada por método + rota, com status vistos e tempos mínimo, mediana e máximo), monta `<execucao>/matriz.json` (fluxo × persona) e imprime a matriz. Mostre essa saída ao usuário.
+2. **Achados:** transforme os problemas relatados pelas personas em entradas de `<execucao>/achados.json` com `modo: "personas"`, no formato de `formato-dados.md`.
+   - Um mesmo problema visto por várias personas vira **um** achado, com todas as evidências.
+   - Cada evidência aponta para algo que existe: screenshot (`personas/<id>/screenshots/...`), passo (`personas/<id>/passos.jsonl#<n>`) ou requisição (`requisicoes.json#<MÉTODO> <rota>`).
+   - Classifique a severidade pela tabela de `formato-dados.md`.
+   - A causa raiz fica para o diagnóstico. Agora, deixe `causa_raiz` nulo, ou preencha com `status: "hipotese"` se a persona trouxe indício.
+   - Antes de gravar um achado, confira a evidência no arquivo. A resposta da persona é um resumo; o passo, o screenshot e a requisição são a prova.
+3. **Validar:** rode
+   ```bash
+   node <skill>/scripts/validar.mjs <execucao>
+   ```
+   Corrija todo `ERRO` antes de seguir. Avisos de causa raiz ausente são esperados nesta etapa.
+4. Mostre ao usuário os achados mais graves em poucas linhas.
 
 ## Limites desta etapa
 

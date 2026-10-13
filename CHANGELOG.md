@@ -15,4 +15,6 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Subagentes de persona em paralelo, cada um com o seu navegador isolado; rede 3G simulada para a Jéssica.
 - Narrativa ao vivo (`registrar.mjs`) e palco no terminal (`palco.mjs`), com reapresentação para gravação.
 - Hook que aprova automaticamente só os navegadores do prodtester, o script de registro e a leitura dos arquivos do plugin, para as personas rodarem sem interrupção.
+- Consolidação da etapa de personas (`consolidar-personas.mjs`): requisições por rota com tempos e matriz fluxo × persona.
+- Validação dos achados (`validar.mjs`): formato, campos obrigatórios e existência dos arquivos de evidência.
 - Credenciais de teste sem expor senhas, via segredos do navegador (`PRODTESTER_SEGREDOS`) ou sessão salva (`PRODTESTER_SESSAO`).

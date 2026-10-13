@@ -43,6 +43,7 @@ O perfil do sistema pode remover etapas. Por exemplo, uma API pública não tem 
 4. **Não altere o sistema auditado.** Correções são propostas. Aplicar só com pedido do usuário, numa branch separada.
 5. **Leia cada reference só quando chegar na etapa dela.** Não carregue tudo de uma vez.
 6. **Os arquivos da execução são a fonte da verdade.** Siga `<skill>/references/formato-dados.md`. O relatório sai só deles.
+7. **Comandos simples.** Leia arquivos com as ferramentas de leitura e busca, não com `cat` ou laços no shell. No Bash, prefira os scripts de `<skill>/scripts/`, um comando por chamada, sem `for`, `&&` ou `|`. Assim a auditoria roda com o mínimo de pedidos de permissão.
 
 ## Etapas
 
