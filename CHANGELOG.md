@@ -24,5 +24,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Cenários de disputa por recurso com verificação antes e depois e resultado inconclusivo quando o estado inicial não permite concluir.
 - `rodar-carga.sh` com travas de segurança (confirmação nesta execução, ambiente isolado, alvo registrado) e monitor de CPU do k6, CPU da máquina e memória do sistema auditado.
 - `consolidar-carga.mjs`: curva usuários × p95 × erro, capacidade medida, ponto de quebra, passos mais lentos e alertas de validade.
+- Diagnóstico e correção: causa raiz confirmada ou hipótese, correção no formato da camada (diff, migração, passos de infraestrutura com custo, caminho de arquitetura com paliativo) e catálogo de boas práticas com 15 temas.
+- `plano-correcao.mjs`: prioridade por severidade, impacto e esforço (críticos, ganhos rápidos, estruturais, melhorias).
+- Revalidação (`comparar-revalidacao.mjs`): antes × depois por caso de API, degrau de carga, disputa e fluxo de persona.
+- Guarda contra regressão: modelo de job do GitHub Actions e modo `PRODTESTER_FALHAR=1` nos executores k6.
 - Leitura de especificações OpenAPI em JSON (`openapi-endpoints.mjs`).
 - Credenciais de teste sem expor senhas, via segredos do navegador (`PRODTESTER_SEGREDOS`) ou sessão salva (`PRODTESTER_SESSAO`).

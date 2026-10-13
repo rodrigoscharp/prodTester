@@ -15,6 +15,7 @@
 //   PRODTESTER_SAIDA      arquivo de resultado (padrão ./carga-<etapa>.json)
 //   PRODTESTER_BASE_URL   substitui a base_url do cenário
 //   PRODTESTER_SEGREDOS   arquivo .env com credenciais de teste
+//   PRODTESTER_FALHAR     com 1, o k6 sai com erro se a etapa passar dos limites de p95 e erro (uso no CI)
 // A execução é interrompida sozinha quando a taxa de erro de um degrau passa
 // do limite de interrupção do cenário (padrão 5%).
 
@@ -225,6 +226,10 @@ function montarOpcoes() {
     thresholds[`http_req_duration{degrau:${d}}`] = ['p(95)>=0'];
     thresholds[`http_reqs{degrau:${d}}`] = ['count>=0'];
     thresholds[`http_req_failed{degrau:${d}}`] = interromper('15s');
+  }
+  if (__ENV.PRODTESTER_FALHAR === '1' && ETAPA !== 'disputa') {
+    thresholds.http_req_duration = [`p(95)<${LIMITES.p95_ms}`];
+    thresholds.http_req_failed = thresholds.http_req_failed.concat([`rate<${LIMITES.taxa_erro}`]);
   }
   for (const p of PASSOS) {
     thresholds[`http_req_duration{passo:${p}}`] = ['p(95)>=0'];

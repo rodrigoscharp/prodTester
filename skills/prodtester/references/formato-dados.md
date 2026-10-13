@@ -33,6 +33,8 @@ auditoria/
     │   ├── maquina-<etapa>.json    # CPU do k6 e da máquina, memória do alvo
     │   └── consolidado.json        # curva, capacidade, ponto de quebra, disputas, volumes
     ├── achados.json                # todos os problemas encontrados
+    ├── plano-correcao.json         # achados em ordem de prioridade
+    ├── explain/<id-do-achado>.txt  # saída do EXPLAIN ANALYZE usada como evidência
     ├── correcoes/<id-do-achado>.diff
     ├── revalidacao.json            # antes e depois, quando houver
     ├── relatorio.html

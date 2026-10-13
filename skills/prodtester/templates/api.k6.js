@@ -11,6 +11,7 @@
 //   PRODTESTER_SAIDA      arquivo de resultado (padrão ./resultado-api.json)
 //   PRODTESTER_BASE_URL   substitui a base_url do arquivo de casos
 //   PRODTESTER_SEGREDOS   arquivo .env com credenciais de teste
+//   PRODTESTER_FALHAR     com 1, o k6 sai com erro se algum caso falhar (uso no CI)
 // Credenciais também podem vir direto de variáveis de ambiente com o mesmo nome.
 // Nenhum valor de credencial é gravado no resultado.
 
@@ -30,6 +31,7 @@ export const options = {
   iterations: 1,
   setupTimeout: '15m',
   summaryTrendStats: ['min', 'med', 'p(95)', 'max'],
+  thresholds: __ENV.PRODTESTER_FALHAR === '1' ? { checks: ['rate==1'] } : {},
 };
 
 function carregarSegredos(caminho) {
@@ -268,6 +270,7 @@ export function setup() {
     try {
       resultados.push(executarCaso(caso, sessoes, variaveis));
     } catch (e) {
+      check(null, { [`${caso.id} executou`]: () => false });
       resultados.push({
         id: caso.id,
         endpoint: caso.endpoint,

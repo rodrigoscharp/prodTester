@@ -1,0 +1,71 @@
+# Guarda contra regressão gerada pelo prodtester.
+#
+# Roda os testes de API e o smoke de carga a cada pull request. O job falha
+# se algum caso de API falhar ou se o smoke passar dos limites de p95 e erro.
+#
+# Copie para .github/workflows/prodtester.yml e ajuste:
+#   - o passo "Subir o sistema" para o jeito que o projeto sobe (aqui, docker compose);
+#   - PRODTESTER_BASE_URL para o endereço do sistema no CI;
+#   - os segredos com as credenciais das contas de teste (Settings > Secrets and variables > Actions).
+# Nunca use credenciais de produção nem chaves privilegiadas aqui.
+
+name: prodtester
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  regressao:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PRODTESTER_BASE_URL: http://localhost:3000
+      PRODTESTER_FALHAR: "1"
+      # Credenciais das contas de teste, lidas pelos scripts como {{segredo:NOME}}.
+      PRODTESTER_USUARIO_A: ${{ secrets.PRODTESTER_USUARIO_A }}
+      PRODTESTER_SENHA_A: ${{ secrets.PRODTESTER_SENHA_A }}
+      PRODTESTER_USUARIO_B: ${{ secrets.PRODTESTER_USUARIO_B }}
+      PRODTESTER_SENHA_B: ${{ secrets.PRODTESTER_SENHA_B }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Subir o sistema
+        run: |
+          docker compose up -d --build
+          for i in $(seq 1 60); do
+            curl -fsS "$PRODTESTER_BASE_URL" >/dev/null 2>&1 && exit 0
+            sleep 2
+          done
+          echo "O sistema não respondeu em 2 minutos" >&2
+          docker compose logs
+          exit 1
+
+      - name: Instalar o k6
+        uses: grafana/setup-k6-action@v1
+        with:
+          k6-version: "2.3.0"
+
+      - name: Testes de API
+        working-directory: testes
+        env:
+          PRODTESTER_SAIDA: resultado-api.json
+        run: k6 run api.k6.js
+
+      - name: Smoke de carga
+        working-directory: testes
+        env:
+          PRODTESTER_ETAPA: smoke
+          PRODTESTER_SAIDA: resultado-smoke.json
+        run: k6 run carga.k6.js
+
+      - name: Guardar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prodtester-resultados
+          path: testes/resultado-*.json
+
+      - name: Derrubar o sistema
+        if: always()
+        run: docker compose down -v
