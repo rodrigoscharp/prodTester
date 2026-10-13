@@ -648,6 +648,14 @@ dialog.ampliar button { position: absolute; top: 8px; right: 8px; font: inherit;
         h('p', { texto: d.usuarios + ' usuários ao mesmo tempo. ' + plural(d.sucessos, 'requisição deu certo', 'requisições deram certo') + '; valor verificado foi de ' + d.verificacao_antes + ' para ' + d.verificacao_depois + '.' }),
         h('p', { class: 'marca-sev', style: 'color:' + cor, texto: d.passou === true ? 'Sem violação.' : d.passou === false ? d.violacoes.join('; ') + '.' : 'Inconclusiva: ' + (d.inconclusiva || []).join('; ') + '.' })));
     });
+    if (C.resistencia) {
+      var R = C.resistencia, okR = R.dentro_dos_limites && !R.memoria_crescendo;
+      secC.appendChild(h('div', { class: 'disputa', style: '--cor:' + (okR ? 'var(--ok)' : 'var(--critica)') },
+        h('h3', { texto: 'Resistência' }),
+        h('p', { texto: R.vus + ' usuários por ' + Math.round((R.duracao_s || 0) / 60) + ' min: p95 ' + ms(R.p95_ms) + ', erro ' + pct(R.taxa_erro) + '.' }),
+        h('p', { texto: R.memoria_mb ? 'Memória do sistema: ' + R.memoria_mb.depois_do_aquecimento + ' MB depois do aquecimento, ' + R.memoria_mb.fim + ' MB no fim (' + (R.memoria_mb.crescimento_pct >= 0 ? '+' : '') + R.memoria_mb.crescimento_pct + '%).' : 'Memória do sistema não medida.' }),
+        h('p', { class: 'marca-sev', style: 'color:' + (okR ? 'var(--ok)' : 'var(--critica)'), texto: okR ? 'Estável.' : R.memoria_crescendo ? 'Memória crescendo sem voltar.' : 'Fora dos limites.' })));
+    }
     if (C.volumes && C.volumes.length) {
       secC.appendChild(h('h3', { texto: 'Volume de dados', style: 'margin-top:26px' }));
       secC.appendChild(h('div', { class: 'rolagem' }, h('table', null,

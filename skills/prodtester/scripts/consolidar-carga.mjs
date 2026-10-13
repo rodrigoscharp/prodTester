@@ -110,6 +110,31 @@ const volumes = etapas
   .sort((a, b) => String(a.gerado_em).localeCompare(String(b.gerado_em)))
   .map((e) => ({ volume: e.volume, p95_ms: e.geral.p95_ms, taxa_erro: e.geral.taxa_erro, passos: e.passos, memoria_alvo_mb: e.maquina?.memoria_alvo_mb ?? null }));
 
+// Resistência: desempenho estável e memória do sistema ao longo da etapa.
+// A memória compara a média do segundo quarto (depois do aquecimento) com a
+// do último quarto; crescer mais de 20% sem voltar é sinal de vazamento.
+const resistencia = (() => {
+  const r = resultados.find((x) => x.etapa === 'resistencia');
+  if (!r) return null;
+  const amostras = (maquinas[r.arquivo]?.amostras ?? []).map((a) => a.memoria_alvo_mb).filter((v) => typeof v === 'number');
+  const media = (v) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : null);
+  const q = Math.floor(amostras.length / 4);
+  const depoisDoAquecimento = q >= 2 ? media(amostras.slice(q, 2 * q)) : null;
+  const final = q >= 2 ? media(amostras.slice(3 * q)) : null;
+  const crescimento = depoisDoAquecimento && final ? Math.round(((final - depoisDoAquecimento) / depoisDoAquecimento) * 100) : null;
+  const dentro = r.geral.p95_ms < limites.p95_ms && r.geral.taxa_erro < limites.taxa_erro;
+  if (crescimento !== null && crescimento > 20) alertas.push(`Na resistência, a memória do sistema cresceu ${crescimento}% entre o começo (depois do aquecimento) e o fim da etapa, sem voltar: investigue vazamento de memória.`);
+  return {
+    vus: r.geral.vus_max,
+    duracao_s: r.duracao_s ?? maquinas[r.arquivo]?.duracao_s ?? null,
+    p95_ms: r.geral.p95_ms,
+    taxa_erro: r.geral.taxa_erro,
+    dentro_dos_limites: dentro,
+    memoria_mb: depoisDoAquecimento !== null ? { depois_do_aquecimento: Math.round(depoisDoAquecimento), fim: Math.round(final), crescimento_pct: crescimento } : null,
+    memoria_crescendo: crescimento !== null ? crescimento > 20 : null,
+  };
+})();
+
 const passoMaisLento = (e) => (e?.passos ?? []).filter((p) => p.p95_ms !== null).sort((a, b) => b.p95_ms - a.p95_ms).slice(0, 5);
 
 const consolidado = {
@@ -123,6 +148,7 @@ const consolidado = {
   passos_mais_lentos: passoMaisLento(estresse ?? etapas.find((e) => e.etapa === 'esperada') ?? etapas[0]),
   disputas,
   volumes,
+  resistencia,
   etapas,
   alertas,
 };
@@ -146,6 +172,10 @@ if (consolidado.ponto_de_quebra) console.log(`Ponto de quebra: ${consolidado.pon
 for (const d of disputas) {
   const veredito = d.passou === true ? '✅' : d.passou === false ? `❌ ${d.violacoes.join('; ')}` : `⏸ inconclusiva: ${(d.inconclusiva ?? []).join('; ')}`;
   console.log(`Disputa ${d.id}: ${d.sucessos} sucessos, verificação ${d.verificacao_antes} → ${d.verificacao_depois} ${veredito}`);
+}
+if (resistencia) {
+  const mem = resistencia.memoria_mb ? `, memória ${resistencia.memoria_mb.depois_do_aquecimento} → ${resistencia.memoria_mb.fim} MB (${resistencia.memoria_mb.crescimento_pct >= 0 ? '+' : ''}${resistencia.memoria_mb.crescimento_pct}%)` : ', memória não medida';
+  console.log(`Resistência: ${resistencia.vus} usuários por ${Math.round((resistencia.duracao_s ?? 0) / 60)} min, p95 ${Math.round(resistencia.p95_ms)} ms, erro ${((resistencia.taxa_erro ?? 0) * 100).toFixed(2)}%${mem} ${resistencia.dentro_dos_limites && !resistencia.memoria_crescendo ? '✅' : '❌'}`);
 }
 for (const v of volumes) console.log(`Volume ${v.volume}: p95 ${Math.round(v.p95_ms)} ms, erro ${((v.taxa_erro ?? 0) * 100).toFixed(2)}%`);
 if (consolidado.passos_mais_lentos.length) {

@@ -334,6 +334,8 @@ if (carga) {
   for (const d of carga.disputas ?? []) {
     md.push(`**Disputa ${d.id}:** ${d.descricao ?? ''} ${d.sucessos} sucessos; valor ${d.verificacao_antes} → ${d.verificacao_depois}. ${d.passou === true ? '✅' : d.passou === false ? `❌ ${d.violacoes.join('; ')}` : `⏸ inconclusiva: ${(d.inconclusiva ?? []).join('; ')}`}`, '');
   }
+  const r = carga.resistencia;
+  if (r) md.push(`**Resistência:** ${r.vus} usuários por ${Math.round((r.duracao_s ?? 0) / 60)} min, p95 ${ms(r.p95_ms)}, erro ${pct(r.taxa_erro)}${r.memoria_mb ? `, memória do sistema ${r.memoria_mb.depois_do_aquecimento} → ${r.memoria_mb.fim} MB (${r.memoria_mb.crescimento_pct}%)` : ''}. ${r.dentro_dos_limites && !r.memoria_crescendo ? '✅' : '❌'}`, '');
   for (const v of carga.volumes ?? []) md.push(`- Volume ${v.volume}: p95 ${ms(v.p95_ms)}, erro ${pct(v.taxa_erro)}`);
   if ((carga.volumes ?? []).length) md.push('');
 }

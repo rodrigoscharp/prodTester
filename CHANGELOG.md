@@ -45,3 +45,5 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Falas das personas entre aspas simples, sem recusa do hook por caracteres de shell.
 - Personas começam e terminam com o navegador fechado (`browser_close`): na revalidação, os navegadores ainda abertos traziam a sessão e o carrinho da rodada anterior.
 - Revalidação compara a prova de cada achado (`provas.json`), não só o resultado do fluxo: um fluxo que continua ⚠️ por outro problema escondia correções que funcionaram.
+- A etapa de resistência entra na consolidação e no laudo, com p95, erro e a memória do sistema depois do aquecimento e no fim; crescimento acima de 20% vira alerta.
+- O modo carga orienta jornadas de escrita a usar itens com estoque alto e a restaurar o estado antes de cada etapa: o estoque esgotado virava taxa de erro.

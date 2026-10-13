@@ -31,6 +31,7 @@ Grave `<execucao>/testes/cenario-carga.json`, seguindo `<skill>/templates/cenari
 - O `peso` de cada jornada reflete a mistura real do momento de pico. Pergunte ou deduza: num cardápio digital na sexta à noite, muita leitura (cardápio) e escrita concorrente (pedidos); num SaaS B2B na segunda de manhã, login, painel e relatórios.
 - Varie os dados com `{{escolher:<lista em dados>}}`, `{{aleatorio}}`, `{{vu}}` e `{{iteracao}}`, para não medir só o cache.
 - Use `capturar` para encadear passos (criar um pedido e depois acompanhá-lo).
+- **Jornadas de escrita gastam recursos.** Compras, reservas e cupons esgotam o estoque durante a etapa, e as recusas de negócio (409 de esgotado) viram taxa de erro que não é do sistema. Nas jornadas de escrita, escolha itens com estoque alto (liste-os em `dados`) e **restaure o estado inicial antes de cada etapa** (seed do projeto, banco recriado ou a própria API), com o "sim" do usuário. Se mesmo assim aparecer erro no passo de escrita, confira os status antes de concluir que o sistema quebrou.
 - `id` de jornada e de passo: só letras minúsculas, números e hífen.
 - Credenciais por `{{segredo:NOME}}` ou `token_env`, como no modo api. Os logins acontecem uma vez no início e são distribuídos entre os usuários virtuais.
 
@@ -59,7 +60,7 @@ Ordem e regras:
 3. **`estresse`** (degraus até degradar). A etapa para sozinha se a taxa de erro de um degrau passar de 5%.
 4. **`pico`** (de 0 ao valor alto em ~10 s).
 5. **`disputa`**, para cada cenário de disputa (veja a seção 4).
-6. **`resistencia`** (30 a 60 min) **só se o usuário pedir**.
+6. **`resistencia`** (30 a 60 min, ou o tempo que o usuário pedir) **só se o usuário pedir**, com uma carga dentro da capacidade medida. A consolidação compara a memória do sistema depois do aquecimento com a do fim da etapa; passe `--container` ou `--pid` para ela ser medida.
 
 **Tempo de cada etapa.** Antes de rodar, calcule a duração (subidas + patamares + 30 s de folga) e diga ao usuário em uma linha o que vai rodar e quanto deve levar.
 
