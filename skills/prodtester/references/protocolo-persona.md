@@ -43,7 +43,8 @@ node <scripts>/registrar.mjs <pasta> resumo '<json do resumo>'
    ```bash
    node <scripts>/registrar.mjs <pasta> fala inicio 'Bordão da persona'
    ```
-3. Se a persona tiver ajuste de dispositivo (personas personalizadas de celular), aplique com `browser_resize` agora.
+3. **Comece do zero.** O navegador da persona pode ter ficado aberto desde uma rodada anterior, com sessão e carrinho de outra execução. Chame `browser_close` (se responder que não há página aberta, tudo bem), navegue até `url_base` e confira com `browser_evaluate` que `localStorage` e `sessionStorage` estão vazios (`() => localStorage.length + sessionStorage.length`). Se não estiverem, limpe os dois e recarregue.
+4. Se a persona tiver ajuste de dispositivo (personas personalizadas de celular), aplique com `browser_resize` agora.
 
 ## Ciclo de cada passo
 
@@ -100,7 +101,8 @@ Ao fim de cada fluxo, chame `browser_network_requests` (sem estáticos) e regist
 
 1. Registre o resumo com `registrar.mjs <pasta> resumo`, com o resultado de cada fluxo, o número de passos e o motivo, no formato de `formato-dados.md`.
 2. Narre o fecho (`fim`) com uma frase de despedida da persona.
-3. Responda a quem te chamou com um resumo **curto** em texto:
+3. Feche o navegador com `browser_close`, para a próxima rodada não herdar a sua sessão.
+4. Responda a quem te chamou com um resumo **curto** em texto:
    - resultado de cada fluxo (com número de passos);
    - os problemas observados, cada um com: o que aconteceu, onde (tela, botão, rota), evidência (arquivo de screenshot, passo, requisição com status e tempo) e por que importa para essa persona.
    Não proponha correções; isso é feito depois, no diagnóstico.

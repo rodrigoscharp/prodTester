@@ -304,4 +304,22 @@ Gerado por `consolidar-carga.mjs`: `capacidade` (`usuarios`, `p95_ms`, `taxa_err
 ]
 ```
 
-Valores de `resultado`: `corrigido`, `melhorou`, `sem-mudanca`, `piorou`.
+Valores de `resultado`: `corrigido`, `melhorou`, `sem-mudanca`, `piorou`, `inconclusivo`.
+
+## `provas.json`
+
+Escrito pelo orquestrador na pasta da revalidação, com as provas por achado. `comparar-revalidacao.mjs` junta cada uma ao `revalidacao.json` como item do tipo `prova`.
+
+```json
+[
+  {
+    "achado": "A-001",
+    "teste": "4 cliques seguidos em Finalizar pedido",
+    "antes": { "texto": "4 pedidos criados", "fonte": "personas/quebrador/passos.jsonl#11" },
+    "depois": { "texto": "1 pedido criado; botão desabilitado com Enviando pedido…", "fonte": "personas/quebrador/passos.jsonl#5" },
+    "resultado": "corrigido"
+  }
+]
+```
+
+As fontes apontam para arquivos da auditoria original (`antes`) e da revalidação (`depois`).

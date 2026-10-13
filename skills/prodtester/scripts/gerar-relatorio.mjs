@@ -353,7 +353,7 @@ if (plano?.grupos?.length) {
 if (revalidacao?.itens?.length) {
   md.push('## Antes × depois', '');
   md.push('| Item | Antes | Depois | Resultado |', '|---|---|---|---|');
-  const resumir = (o) => (o.passou !== undefined && o.status !== undefined ? `${o.passou ? 'passou' : 'falhou'} (${o.status})` : o.usuarios !== undefined ? `${o.usuarios} usuários` : o.p95_ms !== undefined ? `p95 ${ms(o.p95_ms)}` : o.sucessos !== undefined ? `${o.sucessos} sucessos` : o.resultado ?? '-');
+  const resumir = (o) => (o.texto !== undefined ? o.texto : o.passou !== undefined && o.status !== undefined ? `${o.passou ? 'passou' : 'falhou'} (${o.status})` : o.usuarios !== undefined ? `${o.usuarios} usuários` : o.p95_ms !== undefined ? `p95 ${ms(o.p95_ms)}` : o.sucessos !== undefined ? `${o.sucessos} sucessos` : o.resultado ?? '-');
   for (const i of revalidacao.itens) md.push(`| ${i.descricao} | ${resumir(i.antes)} | ${resumir(i.depois)} | ${i.resultado} |`);
   md.push('');
 }

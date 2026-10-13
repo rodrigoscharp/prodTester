@@ -80,13 +80,15 @@ Acionada por `/prodtester:revalidar` ou quando o usuário pede para conferir uma
 3. Reexecute **só o que falhou**:
    - **API:** copie os casos que falharam (e os casos de que eles dependem por `capturar`) para um novo `testes/casos-api.json`, com os mesmos ids, e rode como no modo api.
    - **Carga:** rode de novo as etapas que mostraram o problema, com o mesmo cenário e os mesmos degraus. Para disputas, recoloque o recurso no mesmo estado inicial.
-   - **Personas:** rode de novo só as personas e os fluxos com resultado diferente de `concluiu`.
+   - **Personas:** rode de novo só as personas e os fluxos com resultado diferente de `concluiu`. Na missão, acrescente `provas_da_revalidacao`: para cada achado que a persona viu, a prova de `correcao.teste` e a medição de antes (por exemplo, "clique 4 vezes em Finalizar e conte os pedidos; antes, 4 pedidos").
+   - **Provas:** grave em `provas.json` da revalidação uma entrada por prova, com o que a persona (ou você) mediu antes e depois. A matriz só compara o resultado do fluxo; um fluxo que continua ⚠️ por outro problema esconderia uma correção que funcionou.
 4. Compare:
    ```bash
    node <skill>/scripts/comparar-revalidacao.mjs <pasta-original> <pasta-revalidacao>
    ```
    O script grava `revalidacao.json` com antes, depois e resultado (`corrigido`, `melhorou`, `sem-mudanca`, `piorou`, `inconclusivo`) e imprime o comparativo.
-5. Mostre o comparativo ao usuário e gere o relatório da revalidação, que inclui a seção antes × depois.
+5. Grave o `achados.json` da revalidação: tire os achados corrigidos, atualize os que melhoraram (com `revalidacao` preenchido) e acrescente os problemas novos, inclusive os causados pelas correções. Achados que vêm da auditoria original apontam evidências e diffs para a pasta dela, com `../<pasta original>/` no começo do caminho.
+6. Mostre o comparativo ao usuário e gere o relatório da revalidação, que inclui a seção antes × depois.
 
 Revalidação só compara medições feitas da mesma forma. Se o ambiente mudou (outra máquina geradora, outro tamanho de instância), diga isso no relatório.
 

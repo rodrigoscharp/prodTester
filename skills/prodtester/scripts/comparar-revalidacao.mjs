@@ -8,7 +8,9 @@
 //   - casos de API (api/resultado.json), pelo id do caso;
 //   - etapas de carga (carga/consolidado.json): capacidade, ponto de quebra,
 //     p95 por degrau e disputas;
-//   - fluxos das personas (matriz.json), por fluxo e persona.
+//   - fluxos das personas (matriz.json), por fluxo e persona;
+//   - provas por achado (provas.json da revalidação), com o que foi medido
+//     antes e depois pelas personas ou pelo orquestrador.
 // Grava <revalidacao>/revalidacao.json e imprime o comparativo. Os achados
 // ligados a cada item vêm do achados.json da auditoria original.
 
@@ -29,6 +31,17 @@ const achados = ler(original, 'achados.json') ?? [];
 const achadosDe = (pred) => achados.filter(pred).map((a) => a.id);
 
 const itens = [];
+
+// Provas por achado: a medição que mostra se a correção funcionou.
+const provas = ler(nova, 'provas.json') ?? [];
+const RESULTADOS = new Set(['corrigido', 'melhorou', 'sem-mudanca', 'piorou', 'inconclusivo']);
+for (const p of provas) {
+  if (!p?.achado || !p.antes?.texto || !p.depois?.texto || !RESULTADOS.has(p.resultado)) {
+    console.error(`comparar: prova ignorada, faltam achado, antes.texto, depois.texto ou resultado válido: ${JSON.stringify(p).slice(0, 120)}`);
+    continue;
+  }
+  itens.push({ tipo: 'prova', chave: p.achado, descricao: `${p.achado} · ${p.teste ?? ''}`.trim(), achados: [p.achado], antes: p.antes, depois: p.depois, resultado: p.resultado });
+}
 
 // API: por caso.
 const apiAntes = ler(original, 'api/resultado.json');
@@ -133,7 +146,9 @@ writeFileSync(join(nova, 'revalidacao.json'), `${JSON.stringify(saida, null, 2)}
 
 const SIMBOLO = { corrigido: '✅', melhorou: '⬆️', 'sem-mudanca': '➖', piorou: '❌', inconclusivo: '⏸' };
 const mostrar = (o) =>
-  o.passou !== undefined && o.status !== undefined
+  o.texto !== undefined
+    ? o.texto
+    : o.passou !== undefined && o.status !== undefined
     ? `${o.passou ? 'passou' : 'falhou'} (status ${o.status}${o.criados !== undefined ? `, ${o.criados} criados` : ''})`
     : o.usuarios !== undefined
       ? `${o.pelo_menos ? '≥' : '~'}${o.usuarios} usuários`

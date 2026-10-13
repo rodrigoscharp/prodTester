@@ -43,3 +43,5 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - URLs com acentos ou emoji nos casos de API e nas jornadas de carga.
 - Medição de estouro de largura no celular usa a largura real da tela.
 - Falas das personas entre aspas simples, sem recusa do hook por caracteres de shell.
+- Personas começam e terminam com o navegador fechado (`browser_close`): na revalidação, os navegadores ainda abertos traziam a sessão e o carrinho da rodada anterior.
+- Revalidação compara a prova de cada achado (`provas.json`), não só o resultado do fluxo: um fluxo que continua ⚠️ por outro problema escondia correções que funcionaram.

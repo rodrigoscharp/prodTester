@@ -743,6 +743,7 @@ dialog.ampliar button { position: absolute; top: 8px; right: 8px; font: inherit;
     var resumoR = D.revalidacao.resumo || {};
     var secR = secao('antes-depois', 'Antes e depois', h('span', { class: 'suave pequeno', texto: Object.keys(resumoR).map(function (k) { return resumoR[k] + ' ' + (NOME_RES[k] || k); }).join(', ') }));
     function curto(o) {
+      if (o.texto !== undefined) return o.texto;
       if (o.passou !== undefined && o.status !== undefined) return (o.passou ? 'passou' : 'falhou') + ' (status ' + o.status + (o.criados !== undefined ? ', ' + o.criados + ' criados' : '') + ')';
       if (o.usuarios !== undefined) return (o.pelo_menos ? 'pelo menos ' : '~') + o.usuarios + ' usuários';
       if (o.p95_ms !== undefined) return 'p95 ' + ms(o.p95_ms) + ', erro ' + pct(o.taxa_erro);
