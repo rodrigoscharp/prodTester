@@ -12,7 +12,9 @@
         "1366x768"
       ],
       "env": {
-        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}"
+        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}",
+        "PLAYWRIGHT_MCP_SECRETS_FILE": "${PRODTESTER_SEGREDOS:-}",
+        "PLAYWRIGHT_MCP_STORAGE_STATE": "${PRODTESTER_SESSAO:-}"
       }
     },
     "pw-leo": {
@@ -27,7 +29,9 @@
         "1440x900"
       ],
       "env": {
-        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}"
+        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}",
+        "PLAYWRIGHT_MCP_SECRETS_FILE": "${PRODTESTER_SEGREDOS:-}",
+        "PLAYWRIGHT_MCP_STORAGE_STATE": "${PRODTESTER_SESSAO:-}"
       }
     },
     "pw-jessica": {
@@ -39,10 +43,14 @@
         "--output-dir",
         "${CLAUDE_PROJECT_DIR}/auditoria/.navegador/jessica",
         "--device",
-        "iPhone SE (3rd gen)"
+        "iPhone SE (3rd gen)",
+        "--init-page",
+        "${CLAUDE_PLUGIN_ROOT}/mcp/rede-3g.cjs"
       ],
       "env": {
-        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}"
+        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}",
+        "PLAYWRIGHT_MCP_SECRETS_FILE": "${PRODTESTER_SEGREDOS:-}",
+        "PLAYWRIGHT_MCP_STORAGE_STATE": "${PRODTESTER_SESSAO:-}"
       }
     },
     "pw-marcos": {
@@ -57,7 +65,9 @@
         "1280x800"
       ],
       "env": {
-        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}"
+        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}",
+        "PLAYWRIGHT_MCP_SECRETS_FILE": "${PRODTESTER_SEGREDOS:-}",
+        "PLAYWRIGHT_MCP_STORAGE_STATE": "${PRODTESTER_SESSAO:-}"
       }
     },
     "pw-kaio": {
@@ -72,7 +82,9 @@
         "1366x768"
       ],
       "env": {
-        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}"
+        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}",
+        "PLAYWRIGHT_MCP_SECRETS_FILE": "${PRODTESTER_SEGREDOS:-}",
+        "PLAYWRIGHT_MCP_STORAGE_STATE": "${PRODTESTER_SESSAO:-}"
       }
     },
     "pw-extra-1": {
@@ -87,7 +99,9 @@
         "1280x800"
       ],
       "env": {
-        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}"
+        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}",
+        "PLAYWRIGHT_MCP_SECRETS_FILE": "${PRODTESTER_SEGREDOS:-}",
+        "PLAYWRIGHT_MCP_STORAGE_STATE": "${PRODTESTER_SESSAO:-}"
       }
     },
     "pw-extra-2": {
@@ -102,7 +116,9 @@
         "1280x800"
       ],
       "env": {
-        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}"
+        "PLAYWRIGHT_MCP_HEADLESS": "${PRODTESTER_HEADLESS:-false}",
+        "PLAYWRIGHT_MCP_SECRETS_FILE": "${PRODTESTER_SEGREDOS:-}",
+        "PLAYWRIGHT_MCP_STORAGE_STATE": "${PRODTESTER_SESSAO:-}"
       }
     }
   }

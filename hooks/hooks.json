@@ -1,0 +1,17 @@
+{
+  "description": "Aprova automaticamente só as ferramentas dos navegadores do prodtester, o script de registro das personas e a leitura dos arquivos do próprio plugin.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^mcp__plugin_prodtester_pw-|^Bash$|^Read$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/aprovar.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

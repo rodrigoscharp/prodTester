@@ -87,7 +87,7 @@ Os campos `contas_teste` guardam apenas identificadores e a origem. Nunca senhas
 
 ## `narrativa.jsonl`
 
-Uma linha JSON por fala. O script `palco.mjs` acompanha este arquivo e mostra as falas ao vivo no terminal.
+Uma linha JSON por fala, gravada pelo script `registrar.mjs`. O script `palco.mjs` acompanha este arquivo e mostra as falas ao vivo no terminal.
 
 ```json
 {"t":"2026-10-13T15:41:02-03:00","persona":"novato","nome":"Dona Cida","emoji":"👵","tipo":"pensamento","texto":"O que é \"adicionar ao carrinho\"? Vou tentar o botão laranja."}
