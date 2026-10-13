@@ -58,6 +58,18 @@ Validação dos caminhos do plugin que a rodada 1 não exercitou. Cada item usou
 
 **Como foi rodada.** O plano era repetir o `claude -p` da rodada 1 com um servidor que registrasse cada pedido de permissão. O classificador do modo automático do Claude Code recusou iniciar um agente com aprovação automática de permissões e recusou que a sessão respondesse pelo dono do sistema às perguntas da preparação. Por isso as auditorias rodaram dentro de uma sessão do Claude Code no app desktop (modo automático), com o plugin instalado, navegadores visíveis e as personas como subagentes de verdade. Os pedidos de permissão foram contados reexecutando o hook `aprovar.mjs` sobre cada chamada de ferramenta registrada nas transcrições. A sessão orquestradora conhecia a lista de bugs da rodada 1, o que pode ter influenciado os casos de API; as personas não conheciam.
 
+**Versão exercitada.** O plugin instalado (cópia em `~/.claude/plugins/cache`, versão 0.1.0, commit b526428) forneceu o texto da skill, os agentes de persona e o hook ativo na sessão. Os scripts e os executores k6 vieram do repositório a partir da revalidação, e as personas foram mandadas ler o protocolo do repositório a partir do modo rápido:
+
+| Rodada | Skill e agentes | Protocolo das personas | Scripts e executores k6 | Hook ativo |
+|---|---|---|---|---|
+| 1 · personas visíveis | cache | cache | cache | cache |
+| 2 · revalidação | cache | cache (foi assim que o estado herdado apareceu) | cache para preparar e consolidar; repositório para `comparar-revalidacao` com `provas.json` e para o laudo | cache |
+| 3 · rápido e API completa | cache | repositório (`browser_close` exercitado: as personas começaram limpas) | repositório | cache |
+| 4 · personas personalizadas | cache | repositório | repositório | cache |
+| 3 e 6 · carga e resistência; 5 · API pública e local-first | cache | — | repositório (`rodar-carga.sh`, `carga.k6.js`, `api.k6.js`, monitor com rede, consolidação com resistência) | cache |
+
+Ficou **sem exercício numa sessão real** a parte nova do hook: aprovar `Write` e `Edit` em `auditoria/` e o `conferir-correcoes.mjs`. O hook ativo era o do cache, e o projeto auditado ficava fora da pasta da sessão. A regra nova foi testada só com entradas de exemplo enviadas direto ao `aprovar.mjs` (gravação dentro de `auditoria/` aprovada; `..`, link simbólico para fora, a própria pasta e caminho relativo recusados), e o `conferir-correcoes.mjs` foi rodado à mão. Vale repetir uma auditoria curta com a 0.2.0 instalada, aberta na pasta do projeto, para confirmar que o orquestrador não pede mais permissão para gravar em `auditoria/`.
+
 ### 1. Auditoria interativa com navegadores visíveis
 
 **Comando:** `/prodtester:prodtester personas http://localhost:3000`, sem `PRODTESTER_HEADLESS`, MacBook com M4 (10 núcleos) e 16 GB, com outros apps abertos.
