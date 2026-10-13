@@ -1,0 +1,153 @@
+# testes-fluxos.yaml — configuração do prodtester para este projeto
+#
+# Copie este arquivo para a raiz do projeto com o nome testes-fluxos.yaml e
+# ajuste. Todos os campos são opcionais: o que faltar, o prodtester deduz
+# lendo o projeto ou pergunta antes de começar.
+#
+# Nunca coloque senhas, tokens ou chaves neste arquivo. Campos terminados em
+# _env guardam o NOME de uma variável de ambiente; o valor fica fora do repositório.
+
+versao: 1
+
+sistema:
+  nome: Loja Exemplo
+  # auto | saas-multitenant | local-first | api-publica
+  perfil: auto
+  # URL do ambiente que será testado. Precisa ser local ou staging.
+  # O prodtester se recusa a rodar contra produção.
+  url_base: http://localhost:3000
+  # Opcional: base da API, se for diferente da url_base.
+  api_base: http://localhost:3000/api
+  # Opcional: caminho ou URL da especificação OpenAPI/Swagger.
+  openapi: /openapi.json
+  # local | staging
+  ambiente: local
+
+autorizacao:
+  # Quem autorizou a auditoria. A confirmação final é sempre feita na conversa.
+  responsavel: Nome da pessoa dona do sistema
+
+proibicoes:
+  pagamento_real: true            # pagamentos só em sandbox
+  mensagens_para_pessoas_reais: true
+  apagar_dados_existentes: true
+  # Rotas que nenhuma persona ou teste pode chamar (curingas com *).
+  rotas_proibidas:
+    - "DELETE /api/contas/*"
+    - "/admin/*"
+  # Ações descritas em texto que devem parar a sessão e gerar uma pergunta.
+  acoes_proibidas:
+    - excluir a conta
+    - convidar membros por e-mail
+
+# Contas de teste. Para SaaS multi-tenant, use pelo menos duas contas em
+# tenants diferentes (A e B): é assim que o isolamento entre clientes é testado.
+# Nunca use chaves que ignoram as regras de acesso (ex.: service_role do Supabase).
+contas_teste:
+  - id: conta-a
+    tenant: loja-a
+    usuario_env: PRODTESTER_USUARIO_A
+    senha_env: PRODTESTER_SENHA_A
+    # Alternativa ao login: um token de usuário comum já emitido.
+    token_env: PRODTESTER_TOKEN_A
+  - id: conta-b
+    tenant: loja-b
+    usuario_env: PRODTESTER_USUARIO_B
+    senha_env: PRODTESTER_SENHA_B
+
+# Fluxos críticos. O critério de sucesso precisa ser algo que dá para ver.
+fluxos:
+  - id: comprar
+    nome: Comprar um produto
+    critico: true
+    inicio: /
+    objetivo: Escolher um produto, colocar no carrinho e finalizar o pedido.
+    sucesso: Tela de confirmação com o número do pedido.
+  - id: cadastro
+    nome: Criar conta
+    critico: true
+    inicio: /cadastro
+    objetivo: Criar uma conta nova com e-mail de teste.
+    sucesso: Usuário logado vendo a página inicial.
+  - id: buscar
+    nome: Buscar produto
+    critico: false
+    inicio: /
+    objetivo: Encontrar um produto pela busca.
+    sucesso: Lista com o produto procurado.
+
+personas:
+  # novato | apressado | celular-3g | so-teclado | quebrador
+  padrao: [novato, apressado, celular-3g, so-teclado, quebrador]
+  # Personas geradas a partir de uma descrição do público real (até 2).
+  personalizadas:
+    - descricao: Dono de restaurante de 55 anos que só usa o celular.
+  # Limite de passos por sessão de persona.
+  max_passos: 25
+  # Os navegadores abrem visíveis. Para rodar sem janelas (por exemplo no CI),
+  # inicie o Claude Code com a variável de ambiente PRODTESTER_HEADLESS=true.
+
+api:
+  # Checks gerados para cada endpoint. Desligue o que não fizer sentido.
+  checks:
+    caminho_feliz: true
+    validacao: true
+    autenticacao: true
+    isolamento: true        # exige duas contas de teste em tenants diferentes
+    idempotencia: true
+    limites: true
+  # Endpoints acima deste tempo são marcados como lentos.
+  tempo_lento_ms: 1000
+  # Endpoints que o modo api não deve chamar além dos de rotas_proibidas.
+  ignorar:
+    - "POST /api/pagamentos/webhook"
+
+carga:
+  # Lembrete para a pergunta de confirmação. A carga só roda se você
+  # confirmar também na conversa, a cada execução.
+  confirmado: false
+  # O ambiente de teste compartilha banco, cache ou servidores com produção?
+  compartilha_com_producao: false
+  # Usuários simultâneos esperados no pico real do negócio.
+  pico_esperado_usuarios: 200
+  # Momento de pico, para montar a mistura de leitura e escrita.
+  momento_de_pico: sexta à noite
+  # Onde a produção roda hoje (para as recomendações de hospedagem).
+  hospedagem_producao: Render, 1 instância de 512 MB, Postgres gerenciado
+  etapas:
+    smoke: true
+    esperada: true
+    estresse: true
+    pico: true
+    resistencia: false      # 30 a 60 minutos; só ligue se precisar
+  degraus_estresse: [50, 100, 250, 500, 1000]
+  duracao_degrau: 2m
+  thresholds:
+    p95_ms: 500
+    taxa_erro: 0.01
+  # A carga para quando passar destes limites.
+  interromper_se:
+    taxa_erro: 0.05
+  # Muitos usuários disputando o mesmo recurso.
+  disputa:
+    - nome: ultimo-item
+      descricao: 100 usuários tentando comprar o último item do produto 42.
+      requisicao: POST /api/pedidos
+      usuarios: 100
+      verificacao: GET /api/produtos/42 deve devolver estoque maior ou igual a zero.
+
+# Só para o perfil local-first: volumes de dados testados no lugar da escada
+# de usuários.
+volume:
+  entidade: transacoes
+  degraus: [1000, 10000, 100000]
+  telas_pesadas:
+    - /financeiro/extrato
+    - /relatorios/anual
+  operacoes_longas:
+    - nome: resposta do assistente
+      requisicao: POST /api/assistente/perguntar
+      timeout_esperado_ms: 30000
+
+relatorio:
+  pasta: auditoria
