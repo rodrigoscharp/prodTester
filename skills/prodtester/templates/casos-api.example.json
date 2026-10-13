@@ -1,0 +1,131 @@
+{
+  "versao": 1,
+  "base_url": "http://localhost:3000",
+  "tempo_lento_ms": 1000,
+  "contas": {
+    "conta-a": {
+      "tipo": "login",
+      "login": {
+        "metodo": "POST",
+        "rota": "/api/login",
+        "corpo": { "email": "{{segredo:PRODTESTER_USUARIO_A}}", "senha": "{{segredo:PRODTESTER_SENHA_A}}" },
+        "extrair": "token"
+      }
+    },
+    "conta-b": { "tipo": "bearer", "token_env": "PRODTESTER_TOKEN_B" }
+  },
+  "variaveis": {},
+  "casos": [
+    {
+      "id": "C-001",
+      "endpoint": "GET /api/produtos",
+      "tipo": "caminho_feliz",
+      "descricao": "Lista produtos",
+      "conta": "nenhuma",
+      "requisicao": { "metodo": "GET", "rota": "/api/produtos" },
+      "esperado": { "status": [200], "json": true }
+    },
+    {
+      "id": "C-002",
+      "endpoint": "POST /api/pedidos",
+      "tipo": "caminho_feliz",
+      "descricao": "Conta A cria um pedido válido",
+      "conta": "conta-a",
+      "requisicao": { "metodo": "POST", "rota": "/api/pedidos", "corpo": { "produto_id": 1, "quantidade": 1 } },
+      "esperado": { "status": [200, 201], "json": true, "campos": ["id"] },
+      "capturar": { "pedido_a": "id" }
+    },
+    {
+      "id": "C-003",
+      "endpoint": "POST /api/pedidos",
+      "tipo": "validacao",
+      "descricao": "Quantidade com texto no lugar de número",
+      "conta": "conta-a",
+      "requisicao": { "metodo": "POST", "rota": "/api/pedidos", "corpo": { "produto_id": 1, "quantidade": "abc" } },
+      "esperado": { "status_faixa": [400, 422], "mensagem_util": true }
+    },
+    {
+      "id": "C-004",
+      "endpoint": "POST /api/pedidos",
+      "tipo": "validacao",
+      "descricao": "Quantidade negativa",
+      "conta": "conta-a",
+      "requisicao": { "metodo": "POST", "rota": "/api/pedidos", "corpo": { "produto_id": 1, "quantidade": -1 } },
+      "esperado": { "status_faixa": [400, 422], "mensagem_util": true }
+    },
+    {
+      "id": "C-005",
+      "endpoint": "POST /api/pedidos",
+      "tipo": "autenticacao",
+      "descricao": "Criar pedido sem token",
+      "conta": "nenhuma",
+      "requisicao": { "metodo": "POST", "rota": "/api/pedidos", "corpo": { "produto_id": 1, "quantidade": 1 } },
+      "esperado": { "status": [401] }
+    },
+    {
+      "id": "C-006",
+      "endpoint": "POST /api/pedidos",
+      "tipo": "autenticacao",
+      "descricao": "Criar pedido com token inválido",
+      "conta": "invalida",
+      "requisicao": { "metodo": "POST", "rota": "/api/pedidos", "corpo": { "produto_id": 1, "quantidade": 1 } },
+      "esperado": { "status": [401] }
+    },
+    {
+      "id": "C-007",
+      "endpoint": "GET /api/pedidos/:id",
+      "tipo": "isolamento",
+      "descricao": "Conta B tenta ler o pedido da conta A",
+      "conta": "conta-b",
+      "requisicao": { "metodo": "GET", "rota": "/api/pedidos/{{pedido_a}}" },
+      "esperado": { "status": [403, 404] }
+    },
+    {
+      "id": "C-008",
+      "endpoint": "PATCH /api/pedidos/:id",
+      "tipo": "isolamento",
+      "descricao": "Conta B tenta alterar o pedido da conta A",
+      "conta": "conta-b",
+      "requisicao": { "metodo": "PATCH", "rota": "/api/pedidos/{{pedido_a}}", "corpo": { "quantidade": 99 } },
+      "esperado": { "status": [403, 404] }
+    },
+    {
+      "id": "C-009",
+      "endpoint": "POST /api/pedidos",
+      "tipo": "idempotencia",
+      "descricao": "4 envios simultâneos do mesmo pedido com a mesma chave de idempotência",
+      "conta": "conta-a",
+      "repeticoes": 4,
+      "simultaneo": true,
+      "requisicao": {
+        "metodo": "POST",
+        "rota": "/api/pedidos",
+        "cabecalhos": { "Idempotency-Key": "prodtester-{{aleatorio}}" },
+        "corpo": { "produto_id": 1, "quantidade": 1 }
+      },
+      "esperado": { "max_criados": 1, "campo_id": "id" }
+    },
+    {
+      "id": "C-010",
+      "endpoint": "GET /api/produtos",
+      "tipo": "limites",
+      "descricao": "limit gigante na paginação",
+      "conta": "nenhuma",
+      "requisicao": { "metodo": "GET", "rota": "/api/produtos?limit=100000" },
+      "esperado": { "status": [200, 400, 422], "max_itens": 100, "max_tempo_ms": 1000 }
+    },
+    {
+      "id": "C-011",
+      "endpoint": "POST /api/pedidos",
+      "tipo": "limites",
+      "descricao": "Campo de texto com 100 mil caracteres",
+      "conta": "conta-a",
+      "requisicao": {
+        "metodo": "POST",
+        "rota": "/api/pedidos",
+        "corpo": { "produto_id": 1, "quantidade": 1, "observacao": "{{repetir:x:100000}}" }
+      },
+      "esperado": { "status_faixa": [200, 499] }
+    }
+  ]
+}

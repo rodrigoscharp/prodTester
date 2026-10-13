@@ -21,9 +21,12 @@ auditoria/
     ├── requisicoes.json            # requisições consolidadas (uma por método + rota)
     ├── matriz.json                 # resultado de cada fluxo para cada persona
     ├── testes/
-    │   ├── api.k6.js               # gerado no modo api
+    │   ├── api.k6.js               # executor dos testes de API (cópia do modelo)
+    │   ├── casos-api.json          # casos de API escritos para este sistema
     │   └── carga.k6.js             # gerado no modo carga
-    ├── api/resultado.json          # resumo do k6 do modo api
+    ├── api/
+    │   ├── resultado.json          # resultado de cada caso de API (gravado pelo k6)
+    │   └── tabela.json             # endpoint × tipo de check
     ├── carga/
     │   ├── <etapa>.json            # resumo do k6 de cada etapa
     │   ├── maquina.json            # uso de CPU e rede da máquina geradora
@@ -235,6 +238,27 @@ Um objeto por problema. Todo achado precisa de pelo menos uma evidência.
 | `baixa` | Detalhe visual, texto confuso, aviso no console sem efeito visível, ganho de desempenho pequeno. |
 
 Na dúvida entre duas severidades, escolha a menor e explique no achado o que faria subir.
+
+## `api/resultado.json`
+
+Gravado por `api.k6.js`. Um item por caso:
+
+```json
+{
+  "id": "C-003",
+  "endpoint": "POST /api/pedidos",
+  "tipo": "validacao",
+  "descricao": "Quantidade com texto no lugar de número",
+  "conta": "conta-a",
+  "esperado": { "status_faixa": [400, 422], "mensagem_util": true },
+  "obtido": { "status": 500, "tempo_ms": 34, "corpo_trecho": "{\"erro\":\"TypeError: ...\"}" },
+  "lento": false,
+  "passou": false,
+  "falhas": ["erro 500 no servidor", "resposta expõe detalhe técnico interno"]
+}
+```
+
+Casos de idempotência trazem também `repeticoes`, `criados` e `status_respostas`. Casos que não puderam rodar (conta sem login, variável sem valor) têm `nao_executado: true`.
 
 ## `revalidacao.json`
 

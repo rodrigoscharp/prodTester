@@ -18,7 +18,7 @@ import { relative, resolve, isAbsolute } from 'node:path';
 const NAVEGADOR = /^mcp__plugin_prodtester_pw-(cida|leo|jessica|marcos|kaio|extra-1|extra-2)__browser_[a-z_]+$/;
 const NAVEGADOR_EXCLUIDAS = new Set(['browser_run_code_unsafe', 'browser_file_upload']);
 // Scripts do plugin que só leem e escrevem dentro da pasta da auditoria.
-const SCRIPTS = ['registrar.mjs', 'preparar-personas.mjs', 'consolidar-personas.mjs', 'validar.mjs'];
+const SCRIPTS = ['registrar.mjs', 'preparar-personas.mjs', 'consolidar-personas.mjs', 'consolidar-api.mjs', 'preparar-testes.mjs', 'validar.mjs'];
 
 function aprovar(motivo) {
   process.stdout.write(
