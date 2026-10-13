@@ -1,7 +1,7 @@
 {
   "name": "prodtester",
   "displayName": "prodtester",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Auditoria completa de sistemas web: personas sintéticas navegando pelos fluxos, testes de API, carga com k6 até o ponto de quebra e plano de correção com antes e depois medido.",
   "author": {
     "name": "Rodrigo Scharp",

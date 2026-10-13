@@ -5,6 +5,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
+## [0.2.0] - 2026-10-13
+
 ### Adicionado
 - Esqueleto do plugin: manifesto, marketplace e servidores Playwright MCP (um navegador isolado por persona).
 - Skill `prodtester` com orquestração por etapas e modos (`completo`, `rapido`, `carga`, `personas`, `api`, `revalidar`).
