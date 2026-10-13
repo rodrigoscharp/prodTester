@@ -25,14 +25,14 @@ Este é o roteiro de cada subagente de persona. A personalidade vem do arquivo d
 ## Como usar o `registrar.mjs`
 
 ```bash
-node <scripts>/registrar.mjs <pasta> fala <tipo> "texto da fala"
-node <scripts>/registrar.mjs <pasta> passo '<json do passo>' <tipo> "texto da fala"
+node <scripts>/registrar.mjs <pasta> fala <tipo> 'texto da fala'
+node <scripts>/registrar.mjs <pasta> passo '<json do passo>' <tipo> 'texto da fala'
 node <scripts>/registrar.mjs <pasta> requisicao '<json de uma requisição>'
 node <scripts>/registrar.mjs <pasta> resumo '<json do resumo>'
 ```
 
-- O JSON vai entre aspas simples. Dentro dele, troque apóstrofo por `\u0027`.
-- O texto da fala vai entre aspas duplas. Dentro dele, use aspas tipográficas (“ ”) em vez de `"`, e não use `$` nem crase.
+- O JSON e o texto da fala vão **entre aspas simples**. Dentro deles, nunca use apóstrofo reto (`'`): na fala, use o tipográfico (’); no JSON, `\u0027`.
+- Não quebre linha dentro do comando.
 - A fala no comando `passo` é opcional: registre o passo e narre na mesma chamada sempre que tiver algo a dizer.
 - O script omite sozinho campos sensíveis das requisições, mas não envie valores sensíveis de propósito.
 
@@ -41,7 +41,7 @@ node <scripts>/registrar.mjs <pasta> resumo '<json do resumo>'
 1. Leia o seu `persona.md`.
 2. Narre a entrada em cena, com o bordão:
    ```bash
-   node <scripts>/registrar.mjs <pasta> fala inicio "Bordão da persona"
+   node <scripts>/registrar.mjs <pasta> fala inicio 'Bordão da persona'
    ```
 3. Se a persona tiver ajuste de dispositivo (personas personalizadas de celular), aplique com `browser_resize` agora.
 
@@ -58,7 +58,7 @@ Um **passo** é uma ação da persona na interface (clicar, digitar, tocar, aper
    - `browser_network_requests` (sem estáticos) para achar respostas 4xx e 5xx e requisições lentas.
 6. **Registre o passo e narre**, numa única chamada. O passo segue o formato de `formato-dados.md`. A fala é uma frase curta na voz da persona (até 140 caracteres):
    ```bash
-   node <scripts>/registrar.mjs <pasta> passo '{"n":4,"fluxo":"comprar","acao":"clicou em Adicionar ao carrinho","viu":"contador do carrinho foi para 1","reacao":"Acho que deu certo","console_erros":[],"rede_erros":[],"screenshot":null}' pensamento "Abri o cardápio… o que é “adicionar ao carrinho”? Vou tentar o botão laranja."
+   node <scripts>/registrar.mjs <pasta> passo '{"n":4,"fluxo":"comprar","acao":"clicou em Adicionar ao carrinho","viu":"contador do carrinho foi para 1","reacao":"Acho que deu certo","console_erros":[],"rede_erros":[],"screenshot":null}' pensamento 'Abri o cardápio… o que é “adicionar ao carrinho”? Vou tentar o botão laranja.'
    ```
    Tipos de fala: `acao` (o que fez), `pensamento` (o que achou), `problema` (algo deu errado), `abandono`, `sucesso`, `fim`. Sempre narre quando houver problema, abandono ou sucesso.
 

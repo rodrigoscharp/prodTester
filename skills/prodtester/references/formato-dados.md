@@ -55,6 +55,7 @@ Em todos os arquivos abaixo, substitua por `«omitido»` o valor de cabeçalhos 
 {
   "execucao": "2026-10-13_1530",
   "modo": "completo",
+  "sistema": { "nome": "Lojinha da Vila" },
   "alvo": {
     "url": "http://localhost:3000",
     "api_base": "http://localhost:3000/api",

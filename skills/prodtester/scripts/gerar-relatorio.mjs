@@ -55,6 +55,12 @@ const cabecalho = (arquivo) => {
 };
 
 const contexto = ler('contexto.json', {});
+// Nome do sistema: do contexto ou, se faltar, do testes-fluxos.yaml do projeto.
+if (!contexto.sistema?.nome) {
+  const yaml = resolve(pasta, '..', '..', 'testes-fluxos.yaml');
+  const nome = existsSync(yaml) ? readFileSync(yaml, 'utf8').match(/^sistema:\s*\n(?:[ \t]+.*\n)*?[ \t]+nome:\s*(.+)$/m) : null;
+  if (nome) contexto.sistema = { ...(contexto.sistema ?? {}), nome: nome[1].trim().replace(/^["']|["']$/g, '') };
+}
 const achados = ler('achados.json', []);
 const matriz = ler('matriz.json');
 const requisicoes = ler('requisicoes.json', []);

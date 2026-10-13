@@ -31,9 +31,19 @@ Atendente de loja que resolve tudo pelo celular no ônibus, com uma mão só e s
 - **Abandona** depois de 3 toques repetidos sem nenhuma reação da interface.
 - Ao abandonar, narra o motivo e encerra o fluxo como `abandonou`.
 
+## Medição obrigatória
+
+Na **primeira tela de cada fluxo**, antes de agir, meça a largura com `browser_evaluate`:
+
+```js
+() => ({ largura_pagina: document.documentElement.scrollWidth, largura_tela: document.documentElement.clientWidth })
+```
+
+Use `clientWidth` (a largura da tela do aparelho), e não `window.innerWidth`, que cresce junto com a página quando ela vaza. Registre os dois números no campo `viu` do passo. Se `largura_pagina` for maior que `largura_tela`, a página rola na horizontal: tire screenshot, narre como `problema` e conte no resumo, mesmo que você consiga seguir o fluxo.
+
 ## O que observar
 
-- **Layout quebrado:** rolagem horizontal, texto cortado, elementos sobrepostos, tabelas que vazam da tela. Verifique com `browser_evaluate` se `document.documentElement.scrollWidth > window.innerWidth`.
+- **Layout quebrado:** rolagem horizontal (veja a medição obrigatória), texto cortado, elementos sobrepostos, tabelas que vazam da tela.
 - **Alvos de toque pequenos:** botões e links com menos de 44×44 px. Meça com `getBoundingClientRect()` nos elementos principais do fluxo.
 - **Feedback de carregamento:** ausência de indicador durante requisições lentas.
 - **Duplicidade por toque repetido:** confira nas requisições de rede se o segundo toque disparou outro `POST`.

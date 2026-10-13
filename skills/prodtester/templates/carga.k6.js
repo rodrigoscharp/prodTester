@@ -76,6 +76,12 @@ function segredo(nome) {
   return valor;
 }
 
+// Codifica só caracteres fora do ASCII (acentos, emoji) e espaços, para não
+// codificar de novo o que já veio codificado.
+function codificarRota(rota) {
+  return String(rota).replace(/[^\x21-\x7E]/gu, (c) => encodeURIComponent(c));
+}
+
 function caminho(objeto, rota) {
   return String(rota).split('.').reduce((atual, parte) => (atual == null ? undefined : atual[parte]), objeto);
 }
@@ -128,7 +134,7 @@ function montarRequisicao(req, cabecalhosConta, variaveis) {
     corpo = JSON.stringify(r.corpo);
     if (!cabecalhos['Content-Type']) cabecalhos['Content-Type'] = 'application/json';
   }
-  return { metodo: (r.metodo || 'GET').toUpperCase(), url: BASE + r.rota, corpo, cabecalhos };
+  return { metodo: (r.metodo || 'GET').toUpperCase(), url: BASE + codificarRota(r.rota), corpo, cabecalhos };
 }
 
 function login(conta) {

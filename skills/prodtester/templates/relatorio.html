@@ -374,13 +374,14 @@ dialog.ampliar button { position: absolute; top: 8px; right: 8px; font: inherit;
       svg.appendChild(s('text', { x: W / 2, y: y0 - 14, 'text-anchor': 'middle', class: 'eixo', texto: 'Teste de esforço não realizado nesta auditoria' }));
       return svg;
     }
-    var maxY = Math.max(limite * 1.6, Math.max.apply(null, curva.map(function (p) { return p.p95_ms || 0; })) * 1.1);
+    var bruto = Math.max(limite * 1.6, Math.max.apply(null, curva.map(function (p) { return p.p95_ms || 0; })) * 1.1);
+    var passo = [100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000].find(function (v) { return bruto / v <= 4; }) || 250000;
+    var maxY = Math.ceil(bruto / passo) * passo;
     var px = function (i) { return m.e + (curva.length === 1 ? (W - m.e - m.d) / 2 : i * (W - m.e - m.d) / (curva.length - 1)); };
     var py = function (v) { return H - m.b - (v / maxY) * (H - m.t - m.b); };
-    [0, 0.25, 0.5, 0.75, 1].forEach(function (f) {
-      var v = maxY * f;
-      svg.appendChild(s('text', { x: m.e - 8, y: py(v) + 4, 'text-anchor': 'end', class: 'eixo', texto: Math.round(v) + ' ms' }));
-    });
+    for (var v = 0; v <= maxY; v += passo) {
+      svg.appendChild(s('text', { x: m.e - 8, y: py(v) + 4, 'text-anchor': 'end', class: 'eixo', texto: v >= 1000 ? (v / 1000).toLocaleString('pt-BR') + ' s' : v + ' ms' }));
+    }
     svg.appendChild(s('line', { x1: m.e, x2: W - m.d, y1: py(limite), y2: py(limite), class: 'limite' }));
     svg.appendChild(s('text', { x: W - m.d, y: py(limite) - 6, 'text-anchor': 'end', class: 'eixo', fill: 'var(--critica)', texto: 'limite p95 ' + limite + ' ms' }));
     // Traçado em forma de eletrocardiograma: um pulso em cada degrau medido.

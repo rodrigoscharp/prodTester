@@ -61,7 +61,12 @@ Ordem e regras:
 5. **`disputa`**, para cada cenário de disputa (veja a seção 4).
 6. **`resistencia`** (30 a 60 min) **só se o usuário pedir**.
 
-Etapas longas (esperada, estresse, resistência) passam do tempo limite de um comando. Rode-as em segundo plano e espere o aviso de término; não fique consultando. Antes de cada etapa, diga ao usuário em uma linha o que vai rodar e quanto tempo deve levar. Depois de cada uma, mostre as linhas de resultado que o script imprime.
+**Tempo de cada etapa.** Antes de rodar, calcule a duração (subidas + patamares + 30 s de folga) e diga ao usuário em uma linha o que vai rodar e quanto deve levar.
+
+- **Até ~9 minutos:** rode em primeiro plano, com o tempo limite máximo do comando.
+- **Mais que isso** (estresse com muitos degraus, resistência): rode em segundo plano e **espere em primeiro plano** com um laço de até 9 minutos por chamada, repetido até a etapa terminar (por exemplo, `until [ -f <execucao>/carga/<etapa>.json ]; do sleep 10; done`). **Nunca encerre a resposta com uma etapa rodando**: sem usuário na conversa (execução não interativa), a sessão termina e a etapa morre junto.
+
+Depois de cada etapa, mostre as linhas de resultado que o script imprime.
 
 **Interrompa a sequência** se uma etapa terminar `INTERROMPIDA` com o ambiente fora do ar (smoke falhando depois), ou se o usuário pedir. Nunca rode a próxima etapa sobre um sistema caído.
 
