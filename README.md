@@ -144,7 +144,7 @@ O prodtester segue estas regras em toda auditoria, e nenhuma configuração as d
 - **Nada de teste de segurança ofensivo:** sem injeção, força bruta ou fuzzing. O Kaio testa robustez; o isolamento entre contas usa só requisições legítimas.
 - **Não altera o seu código nem a sua infraestrutura.** As correções são propostas. Se você pedir, elas são aplicadas numa branch separada, sem push.
 
-**Aprovação automática.** Para as personas rodarem em paralelo sem dezenas de pedidos de permissão, o plugin traz um hook que aprova sozinho só três coisas: as ferramentas dos navegadores do próprio prodtester (exceto executar código arbitrário e enviar arquivos), os scripts do plugin que só mexem na pasta `auditoria/`, e a leitura de arquivos do próprio plugin. Tudo o que manda requisições ao seu sistema, como os testes de API e de carga, continua pedindo a sua aprovação.
+**Aprovação automática.** Para as personas rodarem em paralelo sem dezenas de pedidos de permissão, o plugin traz um hook que aprova sozinho só quatro coisas: as ferramentas dos navegadores do próprio prodtester (exceto executar código arbitrário e enviar arquivos), os scripts do plugin que só mexem na pasta `auditoria/` ou só leem o repositório, a leitura de arquivos do próprio plugin e a gravação de arquivos dentro de `auditoria/`. Tudo o que manda requisições ao seu sistema, como os testes de API e de carga, continua pedindo a sua aprovação.
 
 **Limites honestos.** Staging não é produção quando a infraestrutura é diferente. Agentes de IA não são determinísticos, por isso cada achado vem com evidência. Personas não substituem testes com pessoas reais. Correções precisam de revisão humana. Tudo isso aparece no laudo.
 

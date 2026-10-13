@@ -28,7 +28,7 @@ Preencha `correcao` em cada achado. Use o catálogo como base e escreva para o c
 
 ### Código
 
-- **Diff unificado** contra o repositório do usuário, gravado em `correcoes/<id-do-achado>.diff` e referenciado em `correcao.diff`. O diff precisa aplicar com `git apply --check` no estado atual do repositório; confira antes de gravar.
+- **Diff unificado** contra o repositório do usuário, gravado em `correcoes/<id-do-achado>.diff` e referenciado em `correcao.diff`. O diff precisa aplicar no estado atual do repositório. Depois de gravar os diffs, confira todos de uma vez com `node <skill>/scripts/conferir-correcoes.mjs <execucao>` (roda `git apply --check`, sem alterar nada) e corrija os que não aplicarem.
 - **Correções que mexem no mesmo trecho** (por exemplo, validação, autenticação e idempotência na mesma rota) viram **um diff combinado**, gravado no achado de maior prioridade e citado nos outros (`"diff": "correcoes/A-002.diff"`). Diffs separados que tocam as mesmas linhas conflitam quando aplicados em sequência.
 - **Teste que prova a correção** (`correcao.teste`): o teste automatizado no estilo do projeto (mesmo framework) ou, no mínimo, o caso de API ou a prova da persona que precisa passar depois.
 - **Não aplique no repositório do usuário sem pedido.** Se ele pedir, crie a branch `prodtester/correcoes-<AAAA-MM-DD>`, aplique só os diffs aprovados, rode os testes do projeto e mostre o resultado. Não faça push.

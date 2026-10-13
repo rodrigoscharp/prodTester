@@ -35,6 +35,8 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Leitura de especificações OpenAPI em JSON (`openapi-endpoints.mjs`).
 - Credenciais de teste sem expor senhas, via segredos do navegador (`PRODTESTER_SEGREDOS`) ou sessão salva (`PRODTESTER_SESSAO`).
 - README de vitrine com instalação em 3 comandos, screenshots do laudo, configuração, segurança e como contribuir.
+- Hook aprova também a gravação de arquivos dentro de `<projeto>/auditoria/` e o novo `conferir-correcoes.mjs`, que confere todos os diffs com `git apply --check` sem alterar o repositório.
+- Monitor da máquina mede o tráfego de rede do gerador (contêiner do k6 ou interfaces da máquina) e alerta quando passa de 80% da capacidade informada em `PRODTESTER_REDE_MBPS`.
 
 ### Corrigido
 - Etapas de carga longas não morrem mais quando a execução é não interativa: rodam ou são aguardadas em primeiro plano.

@@ -1,24 +1,26 @@
 #!/usr/bin/env node
 // Hook PreToolUse do prodtester.
 //
-// Aprova sem perguntar apenas duas coisas, para as personas rodarem em
-// paralelo sem interrupção:
+// Aprova sem perguntar apenas quatro coisas, para a auditoria rodar sem uma
+// fila de pedidos de permissão:
 //   1. ferramentas dos navegadores do próprio prodtester (servidores pw-*),
 //      exceto as que executam código arbitrário ou enviam arquivos locais;
 //   2. o comando simples `node <plugin>/skills/prodtester/scripts/<script>.mjs ...`
 //      para os scripts listados em SCRIPTS, sem encadeamento, redirecionamento
 //      ou expansão de shell;
 //   3. a leitura (Read) de arquivos dentro da pasta do próprio plugin, onde
-//      ficam as personas, o protocolo e as referências.
+//      ficam as personas, o protocolo e as referências;
+//   4. a gravação (Write e Edit) de arquivos dentro de <projeto>/auditoria/,
+//      a pasta de dados da auditoria.
 // Qualquer outra chamada segue o fluxo normal de permissões do Claude Code.
 
 import { readFileSync, realpathSync } from 'node:fs';
-import { relative, resolve, isAbsolute } from 'node:path';
+import { basename, dirname, relative, resolve, isAbsolute } from 'node:path';
 
 const NAVEGADOR = /^mcp__plugin_prodtester_pw-(cida|leo|jessica|marcos|kaio|extra-1|extra-2)__browser_[a-z_]+$/;
 const NAVEGADOR_EXCLUIDAS = new Set(['browser_run_code_unsafe', 'browser_file_upload']);
 // Scripts do plugin que só leem e escrevem dentro da pasta da auditoria.
-const SCRIPTS = ['registrar.mjs', 'preparar-personas.mjs', 'consolidar-personas.mjs', 'consolidar-api.mjs', 'consolidar-carga.mjs', 'preparar-testes.mjs', 'plano-correcao.mjs', 'comparar-revalidacao.mjs', 'gerar-relatorio.mjs', 'validar.mjs'];
+const SCRIPTS = ['conferir-correcoes.mjs', 'registrar.mjs', 'preparar-personas.mjs', 'consolidar-personas.mjs', 'consolidar-api.mjs', 'consolidar-carga.mjs', 'preparar-testes.mjs', 'plano-correcao.mjs', 'comparar-revalidacao.mjs', 'gerar-relatorio.mjs', 'validar.mjs'];
 
 function aprovar(motivo) {
   process.stdout.write(
@@ -80,6 +82,28 @@ function caminhoReal(caminho) {
   }
 }
 
+// Caminho real de um arquivo que talvez ainda não exista: resolve o ancestral
+// mais próximo que existe (seguindo links simbólicos) e junta o resto.
+function caminhoRealFuturo(caminho) {
+  let base = resolve(caminho);
+  const resto = [];
+  for (;;) {
+    try {
+      return resolve(realpathSync(base), ...resto.reverse());
+    } catch {
+      const pai = dirname(base);
+      if (pai === base) return resolve(caminho);
+      resto.push(basename(base));
+      base = pai;
+    }
+  }
+}
+
+function dentroDe(pasta, arquivo) {
+  const r = relative(pasta, arquivo);
+  return Boolean(r) && !r.startsWith('..') && !isAbsolute(r);
+}
+
 let entrada;
 try {
   entrada = JSON.parse(readFileSync(0, 'utf8'));
@@ -108,8 +132,15 @@ if (ferramenta === 'Bash' && process.env.CLAUDE_PLUGIN_ROOT) {
 if (ferramenta === 'Read' && process.env.CLAUDE_PLUGIN_ROOT) {
   const arquivo = String(entrada.tool_input?.file_path ?? '');
   if (isAbsolute(arquivo)) {
-    const dentro = relative(caminhoReal(process.env.CLAUDE_PLUGIN_ROOT), caminhoReal(arquivo));
-    if (dentro && !dentro.startsWith('..') && !isAbsolute(dentro)) aprovar('Leitura de arquivo do próprio prodtester');
+    if (dentroDe(caminhoReal(process.env.CLAUDE_PLUGIN_ROOT), caminhoReal(arquivo))) aprovar('Leitura de arquivo do próprio prodtester');
+  }
+}
+
+if ((ferramenta === 'Write' || ferramenta === 'Edit') && process.env.CLAUDE_PROJECT_DIR) {
+  const arquivo = String(entrada.tool_input?.file_path ?? '');
+  if (isAbsolute(arquivo)) {
+    const auditoria = resolve(caminhoReal(process.env.CLAUDE_PROJECT_DIR), 'auditoria');
+    if (dentroDe(auditoria, caminhoRealFuturo(arquivo))) aprovar('Gravação na pasta auditoria/ do projeto');
   }
 }
 

@@ -8,7 +8,8 @@ Antes de começar, leia `seguranca.md`.
 
 1. Crie `auditoria/<AAAA-MM-DD_HHMM>/` no diretório do projeto, usando a data e hora informadas no topo do `SKILL.md`.
 2. Grave o nome da pasta em `auditoria/ultima.txt`.
-3. Se o projeto tiver `.gitignore` e ele não ignorar `auditoria/`, sugira ao usuário adicionar a linha. Não edite o arquivo sem o "sim" dele.
+3. Os navegadores das personas só gravam screenshots dentro do diretório em que o Claude Code foi aberto, e o hook do plugin só aprova gravações em `auditoria/` desse diretório. Se o usuário indicar um projeto em outra pasta, pare e peça para abrir o Claude Code na pasta do projeto: com a sessão em outro lugar, os screenshots se espalham e cada gravação pede permissão.
+4. Se o projeto tiver `.gitignore` e ele não ignorar `auditoria/`, sugira ao usuário adicionar a linha. Não edite o arquivo sem o "sim" dele.
 
 ## 2. Entender o produto sozinho
 

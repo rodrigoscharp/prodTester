@@ -1,9 +1,9 @@
 {
-  "description": "Aprova automaticamente só as ferramentas dos navegadores do prodtester, os scripts de auditoria do plugin e a leitura dos arquivos do próprio plugin.",
+  "description": "Aprova automaticamente só as ferramentas dos navegadores do prodtester, os scripts de auditoria do plugin, a leitura dos arquivos do próprio plugin e a gravação na pasta auditoria/ do projeto.",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "^mcp__plugin_prodtester_pw-|^Bash$|^Read$",
+        "matcher": "^mcp__plugin_prodtester_pw-|^Bash$|^Read$|^Write$|^Edit$",
         "hooks": [
           {
             "type": "command",
