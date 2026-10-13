@@ -54,7 +54,7 @@ Rodada só com a Jéssica, banco limpo: achado **"Vitrine mais larga que a tela 
 
 ## Rodada 2 · 13/10/2026
 
-Validação dos caminhos do plugin que a rodada 1 não exercitou. Cada item usou uma cópia da `demo/loja-quebrada` fora do repositório, com o banco recriado do seed antes das rodadas que comparam resultados.
+Validação dos caminhos do plugin que a rodada 1 não exercitou. Cada item usou uma cópia da `demo/loja-quebrada` fora do repositório, com o banco recriado do seed antes das rodadas que comparam resultados. A carga rodou depois da confirmação do Rodrigo, dono do sistema, registrada no `contexto.json` de cada execução.
 
 **Como foi rodada.** O plano era repetir o `claude -p` da rodada 1 com um servidor que registrasse cada pedido de permissão. O classificador do modo automático do Claude Code recusou iniciar um agente com aprovação automática de permissões e recusou que a sessão respondesse pelo dono do sistema às perguntas da preparação. Por isso as auditorias rodaram dentro de uma sessão do Claude Code no app desktop (modo automático), com o plugin instalado, navegadores visíveis e as personas como subagentes de verdade. Os pedidos de permissão foram contados reexecutando o hook `aprovar.mjs` sobre cada chamada de ferramenta registrada nas transcrições. A sessão orquestradora conhecia a lista de bugs da rodada 1, o que pode ter influenciado os casos de API; as personas não conheciam.
 
@@ -108,7 +108,19 @@ Placar de 39 para 59 (o teto com crítico). A revalidação também achou um pro
 
 **API completa** (modo `api`, 31 casos, para cobrir os críticos que não dependem de carga): 18 passaram. B5 confirmado (conta B lê o pedido da conta A, status 200), B3 pela API (4 envios simultâneos, 4 pedidos, com e sem `Idempotency-Key`) e B6.
 
-**`/prodtester:auditar-carga`:** pendente da confirmação do dono do sistema nesta execução (veja o fim da rodada).
+**`/prodtester:auditar-carga`** (rodado como `prodtester carga`): os mesmos 31 casos de API e a carga com etapas encurtadas, app, Postgres e k6 (Docker) na mesma máquina.
+
+| Etapa | Resultado |
+|---|---|
+| smoke, 3 usuários | p95 93 ms, sem erro ✅ |
+| esperada, 200 usuários por 2 min | p95 741 ms ❌; a vitrine levou 1.855 ms no p95 |
+| estresse, 50 / 100 / 250 / 500 | p95 80 ms ✅ / 123 ms ✅ / 4.332 ms ❌ / 16.032 ms ❌; vazão parada em ~7 req/s de 250 a 500 |
+| pico, 500 usuários em 10 s | p95 14.732 ms ❌ |
+| disputa pela última panela, 100 compras ao mesmo tempo | 41 vendas, estoque de 1 para −40 ❌ |
+
+Capacidade medida de ~100 usuários e quebra em 200, o pico esperado, como na rodada 1. Placar 33, 9 achados (5 críticos), com o `EXPLAIN ANALYZE` mostrando `Seq Scan` em 2 milhões de avaliações. O monitor marcou a máquina saturada em todas as etapas (CPU média de 80%, com outros apps e sessões abertos), e a rede medida no contêiner do k6 ficou em 0,7 Mbit/s no máximo.
+
+**Ajuste feito:** a primeira tentativa do estresse parou no degrau de 100 usuários com 8% de erro, mas os erros eram 409 de estoque: a jornada de compra esgotou 14 produtos durante as etapas. A referência do modo carga agora manda usar itens de estoque alto nas jornadas de escrita e restaurar o estado antes de cada etapa. Com isso, o estresse mostrou a quebra real.
 
 ### 4. Personas personalizadas
 
@@ -121,18 +133,30 @@ O caminho funcionou de ponta a ponta: `preparar-personas.mjs` reconheceu os `per
 Dois alvos pequenos, escritos para o teste e mantidos fora do repositório:
 
 - **Cotações API** (API pública, Node sem dependências, `openapi.json`, chave em `X-API-Key`). Perfil detectado como API pública pelas 4 evidências fortes (sem frontend, OpenAPI, chave de API, README para integradores). Personas puladas com o motivo no laudo ("não avaliado"). 16 casos, 9 passaram: achou os 5 problemas plantados (isolamento entre clientes, duplicidade com a mesma `Idempotency-Key`, peso inválido aceito, 500 com rastro em JSON malformado, `limit` sem teto devolvendo 1008 itens quando o OpenAPI documenta 100). Ficou sem teste o limite de uso documentado (60 por minuto): o modo api não tem um tipo de caso para limite de taxa.
-- **Caderno** (local-first: "roda só na sua máquina, para uma pessoa", dados num JSON local). Perfil local-first pelas evidências do README e da ausência de conta e de hospedagem. Cenário de responsividade e volumes de 1 mil e 5 mil notas montados; a trava funcionou: `rodar-carga.sh` recusou a etapa sem a confirmação registrada. A etapa de volume em si está pendente da mesma confirmação da carga.
+- **Caderno** (local-first: "roda só na sua máquina, para uma pessoa", dados num JSON local). Perfil local-first pelas evidências do README e da ausência de conta e de hospedagem. Antes da confirmação, a trava funcionou: `rodar-carga.sh` recusou a etapa. Depois dela, o caderno foi populado pela API e a etapa `responsividade` (2 usuários, 1 min) rodou em cada volume, com a memória do processo medida por `--pid`:
+
+| Volume | p95 | Memória do processo |
+|---|---|---|
+| 1 mil notas | 20 ms | 46 MB |
+| 5 mil notas | 61 ms | 61 MB |
+| 20 mil notas | 623 ms ❌ | 138 MB |
+
+O laudo mostra a tabela por volume no lugar da capacidade em usuários, e o achado aponta a causa (`etiquetasDe` quadrático e listagem sem paginação). Dois ajustes: os passos mais lentos vinham do primeiro volume (20 ms) e não do maior (764 ms na listagem com 20 mil); e a consolidação imprimia a curva de usuários vazia. Observação: com só o modo carga avaliado, um achado alto deixa o placar em 90 ("Pronto para crescer"), o que soa otimista para um app que fica 31 vezes mais lento; a fórmula está documentada, mas vale rever o peso de um único exame. A skill também não tem um script para popular volumes: o orquestrador escreve um na hora, e cada um vira um pedido de permissão.
 
 ### 6. Resistência curta
 
-Pendente da confirmação de carga.
+Etapa `resistencia` com 100 usuários (dentro da capacidade medida) por 5 minutos, banco recriado antes: p95 143 ms e erro de 0,62% no patamar ✅, 2.581 iterações. A memória do app ficou estável: 48 MB depois do aquecimento e 55 MB no fim (+14%).
+
+**Ajuste feito:** a etapa rodava, mas nada dela chegava ao laudo, nem a memória ao longo do tempo, que é o motivo de rodar resistência. Agora a consolidação compara a memória depois do aquecimento com a do fim (alerta acima de 20%) e o laudo mostra um bloco "Resistência".
 
 ### Os 5 críticos do gabarito
 
 | Bug | Rodada 2 |
 |---|---|
 | B3 · Pedido duplicado | ✅ personas (Kaio, 2 vezes) e API |
-| B4 · Estoque negativo | pendente (etapa de disputa, depende da carga) |
+| B4 · Estoque negativo | ✅ disputa: 41 vendas da última panela, estoque −40 |
 | B5 · Pedido de outro cliente | ✅ API, caso de isolamento |
 | B6 · 500 em validação | ✅ API e Kaio (quantidade 1.5) |
-| B10 · Pool pequeno | pendente (escada de carga) |
+| B10 · Pool pequeno | ✅ quebra em 200 usuários com vazão parada em ~7 req/s; `src/db.js:5` com `max: 2` (hipótese, como na rodada 1) |
+
+**Os 5 críticos continuam sendo encontrados.** Também apareceram de novo B1 (N+1 na vitrine), B2 (`Seq Scan` sem índice), B7, B8 e B9.

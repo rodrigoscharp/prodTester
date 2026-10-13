@@ -159,7 +159,7 @@ docker compose up --build
 
 Depois, no Claude Code, dentro dessa pasta, rode `/prodtester:auditar http://localhost:3000`. As contas de teste estão no [README da loja](demo/loja-quebrada/README.md).
 
-Na [avaliação registrada](demo/avaliacao.md), a auditoria completa achou 9 dos 10 bugs na primeira rodada, incluindo os 5 críticos, e os 10 depois de um ajuste na persona Jéssica. O [gabarito](demo/gabarito-loja-quebrada.md) fica fora da pasta da loja, para a auditoria não "colar".
+Na [avaliação registrada](demo/avaliacao.md), a auditoria completa achou 9 dos 10 bugs na primeira rodada, incluindo os 5 críticos, e os 10 depois de um ajuste na persona Jéssica. A segunda rodada validou os navegadores visíveis, a revalidação, os modos rápido e carga, as personas personalizadas, os perfis local-first e API pública e a resistência, e os 5 críticos continuaram aparecendo. O [gabarito](demo/gabarito-loja-quebrada.md) fica fora da pasta da loja, para a auditoria não "colar".
 
 ## Guarda contra regressão
 
