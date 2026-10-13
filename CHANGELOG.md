@@ -47,3 +47,4 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Revalidação compara a prova de cada achado (`provas.json`), não só o resultado do fluxo: um fluxo que continua ⚠️ por outro problema escondia correções que funcionaram.
 - A etapa de resistência entra na consolidação e no laudo, com p95, erro e a memória do sistema depois do aquecimento e no fim; crescimento acima de 20% vira alerta.
 - O modo carga orienta jornadas de escrita a usar itens com estoque alto e a restaurar o estado antes de cada etapa: o estoque esgotado virava taxa de erro.
+- No perfil local-first, os passos mais lentos vêm do maior volume medido, e a consolidação não imprime a curva de usuários vazia.

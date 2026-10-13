@@ -135,6 +135,9 @@ const resistencia = (() => {
   };
 })();
 
+// No local-first, a etapa mais pesada é a do último volume medido.
+const etapaMaiorVolume = etapas.filter((e) => e.etapa === 'responsividade').sort((a, b) => String(a.gerado_em).localeCompare(String(b.gerado_em))).at(-1) ?? null;
+
 const passoMaisLento = (e) => (e?.passos ?? []).filter((p) => p.p95_ms !== null).sort((a, b) => b.p95_ms - a.p95_ms).slice(0, 5);
 
 const consolidado = {
@@ -145,7 +148,7 @@ const consolidado = {
     : null,
   ponto_de_quebra: quebra ? { usuarios: quebra.vus, p95_ms: quebra.p95_ms, taxa_erro: quebra.taxa_erro, etapa: quebra.etapa, motivo: motivoQuebra(quebra) } : null,
   curva,
-  passos_mais_lentos: passoMaisLento(estresse ?? etapas.find((e) => e.etapa === 'esperada') ?? etapas[0]),
+  passos_mais_lentos: passoMaisLento(estresse ?? etapas.find((e) => e.etapa === 'esperada') ?? etapaMaiorVolume ?? etapas[0]),
   disputas,
   volumes,
   resistencia,
@@ -155,7 +158,7 @@ const consolidado = {
 writeFileSync(join(dir, 'consolidado.json'), `${JSON.stringify(consolidado, null, 2)}\n`);
 
 // Saída para o terminal.
-console.log('\nCarga · usuários × p95 × erro\n');
+if (curva.length) console.log('\nCarga · usuários × p95 × erro\n');
 const maiorP95 = Math.max(limites.p95_ms * 2, ...curva.map((p) => p.p95_ms ?? 0));
 for (const p of curva) {
   const barra = '█'.repeat(Math.max(1, Math.round(((p.p95_ms ?? 0) / maiorP95) * 30)));
