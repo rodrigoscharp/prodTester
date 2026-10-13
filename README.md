@@ -172,6 +172,13 @@ No fim, o prodtester oferece copiar os testes gerados para a pasta `testes/` do 
 - Os agentes de persona usam o modelo Sonnet, para rodar até 7 em paralelo com custo menor.
 - Uma auditoria completa leva dezenas de minutos. A maior parte é o teste de esforço, e o prodtester avisa antes de cada etapa quanto ela deve durar.
 
+## Limitações conhecidas
+
+- **Windows só pelo WSL.** Os executores de API e de carga (`rodar-k6.sh`, `rodar-carga.sh`) e a verificação de dependências são scripts bash, e o monitor da máquina usa `ps` e `pgrep`. As personas e o laudo funcionam em qualquer sistema com Node.js.
+- **Rede do gerador sem capacidade conhecida.** O monitor mede o tráfego de rede da máquina que gera a carga (o contêiner do k6, ou as interfaces da máquina sem a de loopback), mas não sabe a velocidade do link. Para ter o alerta de rede saturada, informe a capacidade com `PRODTESTER_REDE_MBPS=<Mbit/s>`. Contra um alvo em `localhost` com o k6 local, o tráfego passa pelo loopback e não é contado.
+- **Gerador e sistema na mesma máquina.** Quando o k6 e o sistema auditado dividem a CPU, a capacidade medida fica abaixo da real; o laudo mostra esse alerta.
+- **Navegadores visíveis pesam.** Com as 5 personas em paralelo e as janelas abertas, os navegadores somaram cerca de 4,7 GB de memória num MacBook com 16 GB. Em máquinas menores, use `PRODTESTER_HEADLESS=true` ou rode menos personas.
+
 ## Estrutura
 
 ```

@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 // Amostra, enquanto um teste roda, o uso de CPU do k6 (processo local ou
-// contêiner grafana/k6), o uso de CPU da máquina inteira e, se pedido, a
-// memória do sistema auditado.
+// contêiner grafana/k6), o uso de CPU da máquina inteira, o tráfego de rede
+// do gerador e, se pedido, a memória do sistema auditado.
+//
+// Rede: com o k6 em contêiner, mede a rede do contêiner (docker stats); com o
+// k6 local, soma as interfaces da máquina, sem a de loopback (macOS e Linux).
+// Sem saber a capacidade do link não dá para dizer se a rede saturou: informe
+// em PRODTESTER_REDE_MBPS (Mbit/s) para ligar o alerta de rede acima de 80%.
 //
 // O gerador é considerado saturado quando o k6 usa 90% ou mais dos núcleos
 // disponíveis por 20 s ou mais: aí os números da etapa não valem. CPU alta só
@@ -15,7 +20,7 @@
 // --pid amostra a memória (RSS) de um processo do sistema auditado.
 
 import { execFileSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 
 const args = process.argv.slice(2);
@@ -32,6 +37,7 @@ const container = opcao('--container');
 const pid = opcao('--pid');
 
 let nucleosDocker = null;
+let containerK6 = null;
 function cpuGerador() {
   try {
     const pids = execFileSync('pgrep', ['-x', 'k6'], { encoding: 'utf8', timeout: 2000 }).trim().split('\n').filter(Boolean);
@@ -46,6 +52,7 @@ function cpuGerador() {
   }
   try {
     const id = execFileSync('docker', ['ps', '-q', '--filter', 'ancestor=grafana/k6:2.3.0'], { encoding: 'utf8', timeout: 3000 }).trim().split('\n')[0];
+    containerK6 = id || null;
     if (!id) return null;
     if (nucleosDocker === null) nucleosDocker = Number(execFileSync('docker', ['info', '--format', '{{.NCPU}}'], { encoding: 'utf8', timeout: 5000 }).trim()) || os.cpus().length;
     const texto = execFileSync('docker', ['stats', '--no-stream', '--format', '{{.CPUPerc}}', id], { encoding: 'utf8', timeout: 5000 }).trim();
@@ -67,6 +74,50 @@ function memoriaContainer() {
   }
 }
 
+function bytes(texto) {
+  const m = String(texto).trim().match(/^([\d.]+)\s*([a-z]+)$/i);
+  return m ? Number(m[1]) * (UNIDADES[m[2].toLowerCase()] || 1) : null;
+}
+
+// Total de bytes recebidos + enviados até agora, ou null se não der para medir.
+function bytesRede() {
+  if (containerK6) {
+    try {
+      const [rx, tx] = execFileSync('docker', ['stats', '--no-stream', '--format', '{{.NetIO}}', containerK6], { encoding: 'utf8', timeout: 5000 }).split('/').map(bytes);
+      return rx !== null && tx !== null ? { total: rx + tx, fonte: 'contêiner do k6' } : null;
+    } catch {
+      return null;
+    }
+  }
+  try {
+    if (process.platform === 'linux') {
+      const linhas = readFileSync('/proc/net/dev', 'utf8').split('\n').slice(2);
+      let total = 0;
+      for (const l of linhas) {
+        const [nome, resto] = l.split(':');
+        if (!resto || nome.trim() === 'lo') continue;
+        const c = resto.trim().split(/\s+/).map(Number);
+        total += c[0] + c[8];
+      }
+      return { total, fonte: 'interfaces da máquina' };
+    }
+    if (process.platform === 'darwin') {
+      const linhas = execFileSync('netstat', ['-ibn'], { encoding: 'utf8', timeout: 3000 }).split('\n');
+      let total = 0;
+      for (const l of linhas) {
+        const c = l.trim().split(/\s+/);
+        if (!c[2]?.startsWith('<Link#') || c[0].startsWith('lo')) continue;
+        const n = c.length;
+        total += Number(c[n - 5]) + Number(c[n - 2]);
+      }
+      return { total, fonte: 'interfaces da máquina' };
+    }
+  } catch {
+    /* sem medição de rede */
+  }
+  return null;
+}
+
 function memoriaProcesso() {
   try {
     const kb = Number(execFileSync('ps', ['-o', 'rss=', '-p', String(pid)], { encoding: 'utf8', timeout: 3000 }).trim());
@@ -85,6 +136,8 @@ function tempos() {
 
 const amostras = [];
 let anterior = tempos();
+let redeAnterior = null;
+let fonteRede = null;
 const inicio = Date.now();
 
 const intervalo = setInterval(() => {
@@ -99,6 +152,12 @@ const intervalo = setInterval(() => {
   const amostra = { t_s: Math.round((Date.now() - inicio) / 1000), cpu_pct: total ? Math.round((ocupado / total) * 100) : 0 };
   const gerador = cpuGerador();
   if (gerador) amostra.k6_pct = Math.round(gerador.pct_de_um_nucleo / gerador.nucleos);
+  const rede = bytesRede();
+  if (rede && redeAnterior && rede.fonte === redeAnterior.fonte && rede.total >= redeAnterior.total) {
+    amostra.rede_mbps = Math.round((((rede.total - redeAnterior.total) * 8) / 1e6 / ((Date.now() - redeAnterior.em) / 1000)) * 10) / 10;
+    fonteRede = rede.fonte;
+  }
+  redeAnterior = rede ? { ...rede, em: Date.now() } : null;
   if (container) amostra.memoria_alvo_mb = memoriaContainer();
   if (pid) amostra.memoria_alvo_mb = memoriaProcesso();
   amostras.push(amostra);
@@ -109,6 +168,9 @@ function encerrar() {
   const cpu = amostras.map((a) => a.cpu_pct);
   const mem = amostras.map((a) => a.memoria_alvo_mb).filter((v) => typeof v === 'number');
   const k6 = amostras.map((a) => a.k6_pct).filter((v) => typeof v === 'number');
+  const rede = amostras.map((a) => a.rede_mbps).filter((v) => typeof v === 'number');
+  const capacidadeRede = Number(process.env.PRODTESTER_REDE_MBPS) || null;
+  const redeMax = rede.length ? Math.max(...rede) : null;
   const k6Acima90 = amostras.filter((a) => a.k6_pct >= 90).length * 2;
   const maquinaAcima90 = amostras.filter((a) => a.cpu_pct >= 90).length * 2;
   const resumo = {
@@ -122,6 +184,15 @@ function encerrar() {
     segundos_maquina_acima_90_pct: maquinaAcima90,
     gerador_saturado: k6Acima90 >= 20,
     maquina_saturada: maquinaAcima90 >= 20,
+    rede: rede.length
+      ? {
+          fonte: fonteRede,
+          media_mbps: Math.round((rede.reduce((a, b) => a + b, 0) / rede.length) * 10) / 10,
+          max_mbps: redeMax,
+          capacidade_mbps: capacidadeRede,
+          saturada: capacidadeRede ? redeMax >= capacidadeRede * 0.8 : null,
+        }
+      : null,
     memoria_alvo_mb: mem.length ? { inicio: mem[0], max: Math.max(...mem), fim: mem[mem.length - 1] } : null,
     amostras,
   };

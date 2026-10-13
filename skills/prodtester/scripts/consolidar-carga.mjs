@@ -37,6 +37,9 @@ const etapas = resultados.map((r) => {
   } else if (maquina && !maquina.k6_medido) {
     alertas.push(`Na etapa ${r.etapa}, não foi possível medir a CPU do k6; a validade do gerador não foi verificada.`);
   }
+  if (maquina?.rede?.saturada) {
+    alertas.push(`Na etapa ${r.etapa}, a rede do gerador chegou a ${maquina.rede.max_mbps} Mbit/s, 80% ou mais dos ${maquina.rede.capacidade_mbps} Mbit/s informados: a rede pode ter limitado a carga, e a capacidade medida pode ficar abaixo da real.`);
+  }
   if (r.erros_contas?.length) alertas.push(`Na etapa ${r.etapa}, contas sem login: ${r.erros_contas.join('; ')}.`);
   return {
     arquivo: r.arquivo,
@@ -56,6 +59,7 @@ const etapas = resultados.map((r) => {
           gerador_saturado: maquina.gerador_saturado,
           maquina_saturada: maquina.maquina_saturada,
           memoria_alvo_mb: maquina.memoria_alvo_mb,
+          rede: maquina.rede ?? null,
         }
       : null,
   };

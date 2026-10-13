@@ -72,6 +72,8 @@ Depois de cada etapa, mostre as linhas de resultado que o script imprime.
 
 Para medir a memória do sistema auditado durante a etapa, passe `--container <nome do contêiner>` (Docker) ou `--pid <pid do processo>` (local).
 
+O monitor também mede o tráfego de rede do gerador (`rede` em `carga/maquina-<etapa>.json`). Se o usuário souber a capacidade do link da máquina geradora, peça para iniciar o Claude Code com `PRODTESTER_REDE_MBPS=<Mbit/s>`: acima de 80% dela, a consolidação avisa que a rede pode ter limitado a carga.
+
 ## 4. Disputa por recurso
 
 Cenários em que muitos usuários disputam a mesma coisa ao mesmo tempo: o último item do estoque, o mesmo horário da agenda, o mesmo cupom de uso único, o mesmo saldo.
