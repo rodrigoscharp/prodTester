@@ -20,5 +20,9 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Modo api: casos em JSON por endpoint (caminho feliz, validação, autenticação, isolamento entre contas, idempotência e limites) executados por um único `api.k6.js`, com resultado por caso e tabela endpoint × check.
 - `rodar-k6.sh`: usa o k6 local ou a imagem Docker `grafana/k6`, repassando credenciais sem expô-las.
 - `preparar-testes.mjs`: copia os executores k6 para a execução sem alteração.
+- Modo carga: jornadas reais com pausas humanas e dados variados em `cenario-carga.json`, executadas por `carga.k6.js` nas etapas smoke, esperada, estresse, pico, resistência e responsividade, com métricas por degrau e por passo e interrupção automática acima de 5% de erro.
+- Cenários de disputa por recurso com verificação antes e depois e resultado inconclusivo quando o estado inicial não permite concluir.
+- `rodar-carga.sh` com travas de segurança (confirmação nesta execução, ambiente isolado, alvo registrado) e monitor de CPU do k6, CPU da máquina e memória do sistema auditado.
+- `consolidar-carga.mjs`: curva usuários × p95 × erro, capacidade medida, ponto de quebra, passos mais lentos e alertas de validade.
 - Leitura de especificações OpenAPI em JSON (`openapi-endpoints.mjs`).
 - Credenciais de teste sem expor senhas, via segredos do navegador (`PRODTESTER_SEGREDOS`) ou sessão salva (`PRODTESTER_SESSAO`).

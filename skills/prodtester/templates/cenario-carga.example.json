@@ -1,0 +1,80 @@
+{
+  "versao": 1,
+  "base_url": "http://localhost:3000",
+  "pico_esperado_usuarios": 200,
+  "thresholds": { "p95_ms": 500, "taxa_erro": 0.01 },
+  "interromper_se": { "taxa_erro": 0.05 },
+  "contas": {
+    "cliente-1": {
+      "tipo": "login",
+      "login": {
+        "metodo": "POST",
+        "rota": "/api/login",
+        "corpo": { "email": "{{segredo:PRODTESTER_USUARIO_A}}", "senha": "{{segredo:PRODTESTER_SENHA_A}}" },
+        "extrair": "token"
+      }
+    }
+  },
+  "dados": {
+    "produtos": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "buscas": ["pizza", "hambúrguer", "suco", "açaí"]
+  },
+  "jornadas": [
+    {
+      "id": "cardapio",
+      "nome": "Cliente vendo o cardápio (leitura pesada)",
+      "peso": 80,
+      "conta": "nenhuma",
+      "passos": [
+        { "id": "listar", "requisicao": { "metodo": "GET", "rota": "/api/produtos?limit=20" }, "pausa_s": [3, 8] },
+        { "id": "buscar", "requisicao": { "metodo": "GET", "rota": "/api/produtos?busca={{escolher:buscas}}" }, "pausa_s": [2, 5] },
+        { "id": "detalhe", "requisicao": { "metodo": "GET", "rota": "/api/produtos/{{escolher:produtos}}" }, "pausa_s": [3, 10] }
+      ]
+    },
+    {
+      "id": "pedido",
+      "nome": "Cliente fazendo um pedido (escrita concorrente)",
+      "peso": 20,
+      "conta": "cliente-1",
+      "passos": [
+        { "id": "detalhe", "requisicao": { "metodo": "GET", "rota": "/api/produtos/{{escolher:produtos}}" }, "pausa_s": [2, 5] },
+        {
+          "id": "criar",
+          "requisicao": {
+            "metodo": "POST",
+            "rota": "/api/pedidos",
+            "cabecalhos": { "Idempotency-Key": "carga-{{vu}}-{{iteracao}}" },
+            "corpo": { "itens": [{ "produto_id": "{{escolher:produtos}}", "quantidade": 1 }] }
+          },
+          "status": [200, 201],
+          "capturar": { "pedido": "id" },
+          "pausa_s": [1, 3]
+        },
+        { "id": "acompanhar", "requisicao": { "metodo": "GET", "rota": "/api/pedidos/{{pedido}}" }, "pausa_s": [5, 15] }
+      ]
+    }
+  ],
+  "etapas": {
+    "smoke": { "vus": 3, "duracao": "1m" },
+    "esperada": { "vus": 200, "subida": "1m", "duracao": "5m" },
+    "estresse": { "degraus": [50, 100, 250, 500, 1000], "subida_degrau": "30s", "duracao_degrau": "2m" },
+    "pico": { "vus": 600, "subida": "10s", "duracao": "1m" },
+    "resistencia": { "vus": 200, "subida": "1m", "duracao": "30m" },
+    "responsividade": { "vus": 2, "duracao": "2m" }
+  },
+  "disputa": [
+    {
+      "id": "ultimo-item",
+      "descricao": "100 clientes comprando ao mesmo tempo o produto 42, que tem 1 unidade em estoque",
+      "usuarios": 100,
+      "conta": "cliente-1",
+      "requisicao": { "metodo": "POST", "rota": "/api/pedidos", "corpo": { "itens": [{ "produto_id": 42, "quantidade": 1 }] } },
+      "max_sucessos": 1,
+      "verificacao": {
+        "requisicao": { "metodo": "GET", "rota": "/api/produtos/42" },
+        "campo": "estoque",
+        "condicao": { "minimo": 0 }
+      }
+    }
+  ]
+}

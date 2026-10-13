@@ -23,14 +23,15 @@ auditoria/
     ├── testes/
     │   ├── api.k6.js               # executor dos testes de API (cópia do modelo)
     │   ├── casos-api.json          # casos de API escritos para este sistema
-    │   └── carga.k6.js             # gerado no modo carga
+    │   ├── carga.k6.js             # executor de carga (cópia do modelo)
+    │   └── cenario-carga.json      # jornadas, etapas e disputas deste sistema
     ├── api/
     │   ├── resultado.json          # resultado de cada caso de API (gravado pelo k6)
     │   └── tabela.json             # endpoint × tipo de check
     ├── carga/
-    │   ├── <etapa>.json            # resumo do k6 de cada etapa
-    │   ├── maquina.json            # uso de CPU e rede da máquina geradora
-    │   └── consolidado.json        # saída do script de consolidação
+    │   ├── <etapa>.json            # resultado de cada etapa (gravado pelo k6)
+    │   ├── maquina-<etapa>.json    # CPU do k6 e da máquina, memória do alvo
+    │   └── consolidado.json        # curva, capacidade, ponto de quebra, disputas, volumes
     ├── achados.json                # todos os problemas encontrados
     ├── correcoes/<id-do-achado>.diff
     ├── revalidacao.json            # antes e depois, quando houver
@@ -259,6 +260,32 @@ Gravado por `api.k6.js`. Um item por caso:
 ```
 
 Casos de idempotência trazem também `repeticoes`, `criados` e `status_respostas`. Casos que não puderam rodar (conta sem login, variável sem valor) têm `nao_executado: true`.
+
+## `carga/<etapa>.json`
+
+Gravado por `carga.k6.js`. Campos principais:
+
+```json
+{
+  "etapa": "estresse",
+  "volume": null,
+  "interrompido": false,
+  "limites": { "p95_ms": 500, "taxa_erro": 0.01 },
+  "geral": { "reqs": 9120, "rps": 75.2, "p50_ms": 48, "p95_ms": 1021, "taxa_erro": 0, "vus_max": 100 },
+  "degraus": [
+    { "vus": 50, "medido": true, "reqs": 960, "rps": 8.1, "p95_ms": 140, "taxa_erro": 0, "dentro_dos_limites": true },
+    { "vus": 100, "medido": true, "reqs": 1320, "rps": 11.0, "p95_ms": 1021, "taxa_erro": 0, "dentro_dos_limites": false }
+  ],
+  "passos": [{ "passo": "vitrine.detalhe", "p95_ms": 1004, "taxa_erro": 0 }],
+  "disputa": null
+}
+```
+
+Na etapa `disputa`, o campo `disputa` traz `sucessos`, `verificacao_antes`, `verificacao_depois`, `violacoes`, `inconclusiva` e `passou` (`true`, `false` ou `null` quando inconclusiva).
+
+## `carga/consolidado.json`
+
+Gerado por `consolidar-carga.mjs`: `capacidade` (`usuarios`, `p95_ms`, `taxa_erro`, `pelo_menos`), `ponto_de_quebra` (`usuarios`, `motivo`), `curva` (um ponto por degrau medido, com `valido: false` quando o gerador saturou), `passos_mais_lentos`, `disputas`, `volumes` e `alertas`. O relatório usa só esses números.
 
 ## `revalidacao.json`
 
