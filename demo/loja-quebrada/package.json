@@ -1,0 +1,16 @@
+{
+  "name": "loja-quebrada",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lojinha da Vila: loja online de demonstração usada para testar o prodtester.",
+  "type": "module",
+  "main": "src/servidor.js",
+  "scripts": {
+    "start": "node src/servidor.js"
+  },
+  "dependencies": {
+    "express": "4.21.2",
+    "pg": "8.13.1"
+  },
+  "license": "MIT"
+}

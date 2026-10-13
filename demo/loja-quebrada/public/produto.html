@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Produto · Lojinha da Vila</title>
+<link rel="stylesheet" href="/estilo.css">
+<script src="/app.js"></script>
+</head>
+<body>
+<main>
+<div class="detalhe" id="detalhe"></div>
+<p class="mensagem ok" id="adicionado" hidden>Produto adicionado ao carrinho.</p>
+<script>
+(async () => {
+  const id = new URLSearchParams(location.search).get("id");
+  const p = await api("/api/produtos/" + id);
+  const el = document.getElementById("detalhe");
+  el.innerHTML = `<div class="figura" aria-hidden="true"></div><div><span class="categoria"></span><h1 class="nome"></h1><p class="descricao"></p><p class="preco"></p><p class="nota"></p><p class="estoque"></p><button class="botao" id="adicionar" type="button">Adicionar ao carrinho</button></div>`;
+  el.querySelector(".figura").textContent = p.imagem;
+  el.querySelector(".categoria").textContent = p.categoria;
+  el.querySelector(".nome").textContent = p.nome;
+  el.querySelector(".descricao").textContent = p.descricao;
+  el.querySelector(".preco").textContent = reais(p.preco_centavos);
+  el.querySelector(".nota").textContent = "Nota " + p.avaliacao.media + " (" + p.avaliacao.total + " avaliações) · " + p.vendidos + " vendidos";
+  el.querySelector(".estoque").textContent = p.estoque > 0 ? p.estoque + " em estoque" : "Esgotado";
+  document.getElementById("adicionar").addEventListener("click", () => { carrinho.adicionar(p); document.getElementById("adicionado").hidden = false; });
+})();
+</script>
+</main>
+</body>
+</html>

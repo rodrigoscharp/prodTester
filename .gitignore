@@ -9,6 +9,7 @@ auditoria/
 .env
 .env.*
 !.env.example
+!.env.*.example
 
 # Sistema e editores
 .DS_Store

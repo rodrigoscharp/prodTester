@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meus pedidos · Lojinha da Vila</title>
+<link rel="stylesheet" href="/estilo.css">
+<script src="/app.js"></script>
+</head>
+<body>
+<main>
+<h1>Meus pedidos</h1>
+<div id="conteudo"></div>
+<script>
+(async () => {
+  const el = document.getElementById("conteudo");
+  if (!sessao.token) { el.innerHTML = "<p><a href=\"/entrar.html?voltar=/pedidos.html\">Entre na sua conta</a> para ver seus pedidos.</p>"; return; }
+  const pedidos = await api("/api/pedidos");
+  if (!pedidos.length) { el.textContent = "Você ainda não fez nenhum pedido."; return; }
+  const tabela = document.createElement("table"); tabela.className = "tabela";
+  tabela.innerHTML = "<thead><tr><th>Pedido</th><th>Data</th><th>Total</th><th>Status</th></tr></thead><tbody></tbody>";
+  for (const p of pedidos) {
+    const tr = document.createElement("tr");
+    [ "#" + p.id, new Date(p.criado_em).toLocaleString("pt-BR"), reais(p.total_centavos), p.status ].forEach((v) => { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
+    tabela.tBodies[0].appendChild(tr);
+  }
+  el.appendChild(tabela);
+})();
+</script>
+</main>
+</body>
+</html>

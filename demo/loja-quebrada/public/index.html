@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Início · Lojinha da Vila</title>
+<link rel="stylesheet" href="/estilo.css">
+<script src="/app.js"></script>
+</head>
+<body>
+<main>
+<h1>Feito à mão, perto de você</h1>
+<p class="subtitulo">Utensílios, presentes e coisas boas de pequenos produtores do Espírito Santo.</p>
+<form class="busca" id="form-busca"><input type="search" name="busca" placeholder="Buscar produtos" aria-label="Buscar produtos"><button class="botao" type="submit">Buscar</button></form>
+<div class="grade" id="grade"></div>
+<script>
+async function carregar(busca) {
+  const grade = document.getElementById("grade");
+  const produtos = await api("/api/produtos" + (busca ? "?busca=" + encodeURIComponent(busca) : ""));
+  grade.innerHTML = "";
+  for (const p of produtos) {
+    const card = document.createElement("article");
+    card.className = "produto";
+    card.innerHTML = `<div class="figura" aria-hidden="true"></div><span class="categoria"></span><strong class="nome"></strong><span class="preco"></span><span class="estoque-baixo"></span><a class="botao" href="/produto.html?id=${p.id}">Ver produto</a>`;
+    card.querySelector(".figura").textContent = p.imagem;
+    card.querySelector(".categoria").textContent = p.categoria;
+    card.querySelector(".nome").textContent = p.nome;
+    card.querySelector(".preco").textContent = reais(p.preco_centavos);
+    card.querySelector(".estoque-baixo").textContent = p.estoque <= 3 ? (p.estoque === 1 ? "Última unidade!" : "Últimas " + p.estoque + " unidades") : "";
+    grade.appendChild(card);
+  }
+}
+document.getElementById("form-busca").addEventListener("submit", (e) => { e.preventDefault(); carregar(e.target.busca.value); });
+carregar();
+</script>
+</main>
+</body>
+</html>

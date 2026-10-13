@@ -1,0 +1,50 @@
+versao: 1
+
+sistema:
+  nome: Lojinha da Vila
+  perfil: auto
+  url_base: http://localhost:3000
+  ambiente: local
+
+autorizacao:
+  responsavel: Dono da Lojinha da Vila (app de demonstração)
+
+proibicoes:
+  pagamento_real: true
+  mensagens_para_pessoas_reais: true
+  apagar_dados_existentes: true
+
+contas_teste:
+  - id: conta-a
+    tenant: ana
+    usuario_env: PRODTESTER_USUARIO_A
+    senha_env: PRODTESTER_SENHA_A
+  - id: conta-b
+    tenant: bia
+    usuario_env: PRODTESTER_USUARIO_B
+    senha_env: PRODTESTER_SENHA_B
+
+fluxos:
+  - id: comprar
+    nome: Comprar um produto
+    critico: true
+    inicio: /
+    objetivo: Escolher um produto na vitrine, adicionar ao carrinho, entrar na conta e finalizar o pedido.
+    sucesso: Mensagem "Pedido N confirmado!" no carrinho.
+  - id: entrar
+    nome: Entrar na conta
+    critico: true
+    inicio: /entrar.html
+    objetivo: Entrar com a conta de teste.
+    sucesso: Nome do cliente aparece no cabeçalho.
+  - id: buscar
+    nome: Buscar um produto
+    critico: false
+    inicio: /
+    objetivo: Encontrar a cuscuzeira pela busca.
+    sucesso: A cuscuzeira aparece na vitrine.
+
+carga:
+  pico_esperado_usuarios: 200
+  momento_de_pico: sexta à noite, depois de um post no Instagram da loja
+  hospedagem_producao: Render, 1 instância de 512 MB, Postgres gerenciado no plano Basic

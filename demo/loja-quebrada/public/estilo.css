@@ -1,0 +1,44 @@
+:root {
+  --fundo: #fdfaf3;
+  --tinta: #2b2118;
+  --suave: #7a6a58;
+  --linha: #e7dccb;
+  --verde: #2f6b3a;
+  --verde-escuro: #224f2a;
+  --cartao: #ffffff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--tinta); font: 16px/1.5 "Trebuchet MS", system-ui, sans-serif; }
+a { color: var(--verde); }
+header.barra { display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; border-bottom: 1px solid var(--linha); background: var(--cartao); }
+header.barra .marca { font-size: 1.4rem; font-weight: 700; color: var(--tinta); text-decoration: none; }
+header.barra nav { display: flex; gap: 18px; align-items: center; }
+.botao-icone { border: 0; background: none; cursor: pointer; padding: 6px; position: relative; color: var(--tinta); }
+.botao-icone svg { width: 26px; height: 26px; }
+.contador { position: absolute; top: -2px; right: -4px; background: var(--verde); color: #fff; border-radius: 999px; font-size: .7rem; padding: 0 6px; }
+main { padding: 28px; }
+h1 { margin: 0 0 6px; }
+.subtitulo { color: var(--suave); margin: 0 0 24px; }
+.busca { display: flex; gap: 8px; margin-bottom: 22px; }
+.busca input { padding: 10px 12px; border: 1px solid var(--linha); border-radius: 6px; width: 320px; font: inherit; }
+.grade { display: grid; grid-template-columns: repeat(4, 260px); gap: 18px; }
+.produto { background: var(--cartao); border: 1px solid var(--linha); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.produto .figura { font-size: 3rem; text-align: center; padding: 10px 0; }
+.produto .categoria { color: var(--suave); font-size: .85rem; }
+.produto .preco { font-weight: 700; font-size: 1.1rem; }
+.produto .estoque-baixo { color: #a4441c; font-size: .85rem; }
+.botao { background: var(--verde); color: #fff; border: 0; border-radius: 6px; padding: 10px 16px; font: inherit; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; }
+.botao:hover { background: var(--verde-escuro); }
+.botao.secundario { background: none; color: var(--verde); border: 1px solid var(--verde); }
+.detalhe { display: grid; grid-template-columns: 240px 1fr; gap: 28px; max-width: 900px; }
+.detalhe .figura { font-size: 8rem; text-align: center; background: var(--cartao); border: 1px solid var(--linha); border-radius: 8px; }
+.formulario { max-width: 480px; display: grid; gap: 14px; }
+.formulario label { display: grid; gap: 4px; font-weight: 600; }
+.formulario input, .formulario textarea { padding: 10px 12px; border: 1px solid var(--linha); border-radius: 6px; font: inherit; }
+.itens-carrinho { list-style: none; padding: 0; max-width: 640px; }
+.itens-carrinho li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--linha); }
+.mensagem { padding: 12px 14px; border-radius: 6px; margin: 12px 0; max-width: 640px; }
+.mensagem.erro { background: #fbe9e4; color: #8a2d12; }
+.mensagem.ok { background: #e6f2e5; color: #224f2a; }
+.tabela { border-collapse: collapse; min-width: 560px; }
+.tabela td, .tabela th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--linha); }

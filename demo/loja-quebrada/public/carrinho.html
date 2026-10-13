@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrinho · Lojinha da Vila</title>
+<link rel="stylesheet" href="/estilo.css">
+<script src="/app.js"></script>
+</head>
+<body>
+<main>
+<h1>Seu carrinho</h1>
+<ul class="itens-carrinho" id="itens"></ul>
+<p id="total"></p>
+<div id="aviso-login" class="mensagem erro" hidden>Para finalizar, <a href="/entrar.html?voltar=/carrinho.html">entre na sua conta</a>.</div>
+<form class="formulario" id="form-pedido">
+  <label>Observação para a entrega (opcional)<textarea name="observacao" rows="3"></textarea></label>
+  <button class="botao" type="submit" id="finalizar">Finalizar pedido</button>
+</form>
+<div id="resultado"></div>
+<script>
+function desenhar() {
+  const itens = carrinho.itens();
+  const lista = document.getElementById("itens");
+  lista.innerHTML = "";
+  if (!itens.length) lista.innerHTML = "<li>Seu carrinho está vazio. <a href=\"/\">Ver produtos</a></li>";
+  for (const i of itens) {
+    const li = document.createElement("li");
+    const nome = document.createElement("span"); nome.textContent = i.quantidade + " × " + i.nome;
+    const valor = document.createElement("strong"); valor.textContent = reais(i.preco_centavos * i.quantidade);
+    li.append(nome, valor); lista.appendChild(li);
+  }
+  document.getElementById("total").textContent = itens.length ? "Total: " + reais(itens.reduce((s, i) => s + i.preco_centavos * i.quantidade, 0)) : "";
+  document.getElementById("aviso-login").hidden = Boolean(sessao.token);
+}
+document.getElementById("form-pedido").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const resultado = document.getElementById("resultado");
+  try {
+    const pedido = await api("/api/pedidos", { method: "POST", body: JSON.stringify({ itens: carrinho.itens().map(({ produto_id, quantidade }) => ({ produto_id, quantidade })), observacao: e.target.observacao.value }) });
+    carrinho.limpar();
+    resultado.innerHTML = "<p class=\"mensagem ok\"></p>";
+    resultado.firstChild.textContent = "Pedido " + pedido.id + " confirmado! Total " + reais(pedido.total_centavos) + ".";
+    desenhar();
+  } catch (erro) {
+    resultado.innerHTML = "<p class=\"mensagem erro\">Algo deu errado.</p>";
+  }
+});
+desenhar();
+</script>
+</main>
+</body>
+</html>

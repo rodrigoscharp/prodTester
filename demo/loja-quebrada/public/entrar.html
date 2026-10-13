@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · Lojinha da Vila</title>
+<link rel="stylesheet" href="/estilo.css">
+<script src="/app.js"></script>
+</head>
+<body>
+<main>
+<h1>Entrar</h1>
+<form class="formulario" id="form-entrar">
+  <label>E-mail<input type="email" name="email" autocomplete="email" required></label>
+  <label>Senha<input type="password" name="senha" autocomplete="current-password" required></label>
+  <button class="botao" type="submit">Entrar</button>
+</form>
+<div id="erro"></div>
+<script>
+document.getElementById("form-entrar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    const r = await api("/api/login", { method: "POST", body: JSON.stringify({ email: e.target.email.value, senha: e.target.senha.value }) });
+    sessao.entrar(r.token, r.nome);
+    location.href = new URLSearchParams(location.search).get("voltar") || "/";
+  } catch (erro) {
+    const el = document.getElementById("erro");
+    el.innerHTML = "<p class=\"mensagem erro\"></p>";
+    el.firstChild.textContent = erro.message;
+  }
+});
+</script>
+</main>
+</body>
+</html>
