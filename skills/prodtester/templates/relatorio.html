@@ -319,6 +319,7 @@ dialog.ampliar button { position: absolute; top: 8px; right: 8px; font: inherit;
   var AMBIENTE = { local: 'Local', staging: 'Staging' };
   var PERFIL = { 'saas-multitenant': 'SaaS multiusuário', 'local-first': 'App local-first', 'api-publica': 'API pública' };
   var MODOS = { personas: 'Personas', api: 'API', carga: 'Carga' };
+  var CAMADA = { codigo: 'código', banco: 'banco', infra: 'infraestrutura', arquitetura: 'arquitetura', conteudo: 'conteúdo' };
   var EVIDENCIA = { screenshot: 'Tela', requisicao: 'Requisição', k6: 'Medição de carga', console: 'Console', explain: 'Plano da consulta', log: 'Log', codigo: 'Código', passo: 'Passo', medicao: 'Medição' };
 
   function ampliar(src, alt) {
@@ -716,7 +717,7 @@ dialog.ampliar button { position: absolute; top: 8px; right: 8px; font: inherit;
           h('div', null,
             h('strong', { texto: i.titulo }),
             h('div', { class: 'item-meta' },
-              h('span', { class: 'marca-sev', texto: SEV[i.severidade] }), ' · ', i.id, ' · ', i.camada || 'camada a definir', ' · ',
+              h('span', { class: 'marca-sev', texto: SEV[i.severidade] }), ' · ', i.id, ' · ', CAMADA[i.camada] || i.camada || 'camada a definir', ' · ',
               h('span', { class: 'selo selo-' + (i.causa || 'hipotese'), texto: i.causa === 'confirmada' ? 'causa confirmada' : 'causa provável' })),
             i.correcao ? h('p', { texto: i.correcao }) : null,
             corr.passos && corr.passos.length ? h('ol', { class: 'passos-infra' }, corr.passos.map(function (p) { return h('li', { texto: p }); })) : null,
@@ -768,6 +769,12 @@ dialog.ampliar button { position: absolute; top: 8px; right: 8px; font: inherit;
     secM.appendChild(h('p', { class: 'suave pequeno', texto: 'Perfil detectado por: ' + meta.perfil_evidencias.join('; ') + '.' }));
   }
   raiz.appendChild(secM);
+
+  // Links com âncora (#conduta, #personas…) só funcionam depois da montagem.
+  if (location.hash) {
+    var alvo = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (alvo) setTimeout(function () { alvo.scrollIntoView(); }, 0);
+  }
 
   raiz.appendChild(h('footer', null,
     h('span', { texto: 'Gerado pelo prodtester' + (D.versao ? ' ' + D.versao : '') }),

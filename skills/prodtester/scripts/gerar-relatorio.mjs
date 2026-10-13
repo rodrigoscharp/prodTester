@@ -271,6 +271,7 @@ function escaparHtml(texto) {
 const SEV = { critica: '🔴 crítica', alta: '🟠 alta', media: '🟡 média', baixa: '⚪ baixa' };
 const SEV_PLURAL = { critica: 'críticas', alta: 'altas', media: 'médias', baixa: 'baixas' };
 const PERFIS = { 'saas-multitenant': 'SaaS multiusuário', 'local-first': 'App local-first', 'api-publica': 'API pública' };
+const CAMADAS = { codigo: 'código', banco: 'banco', infra: 'infraestrutura', arquitetura: 'arquitetura', conteudo: 'conteúdo' };
 const EVID = { screenshot: 'tela', requisicao: 'requisição', k6: 'medição de carga', console: 'console', explain: 'plano da consulta', log: 'log', codigo: 'código', passo: 'passo', medicao: 'medição' };
 const RES = { concluiu: '✅', concluiu_com_problemas: '⚠️', falhou: '❌', abandonou: '❌', nao_executado: '—' };
 const ms = (v) => (v == null ? '-' : `${Math.round(v)} ms`);
@@ -342,7 +343,7 @@ if (plano?.grupos?.length) {
   for (const g of plano.grupos) {
     md.push(`### ${g.titulo}`, '');
     for (const i of g.itens) {
-      md.push(`- **${i.id}** ${i.titulo} (${i.camada ?? '-'}, causa ${i.causa === 'confirmada' ? 'confirmada' : 'provável'}, impacto ${i.impacto ?? '-'}, esforço ${i.esforco ?? '-'})${i.correcao ? `: ${i.correcao}` : ''}`);
+      md.push(`- **${i.id}** ${i.titulo} (${CAMADAS[i.camada] ?? i.camada ?? '-'}, causa ${i.causa === 'confirmada' ? 'confirmada' : 'provável'}, impacto ${i.impacto ?? '-'}, esforço ${i.esforco ?? '-'})${i.correcao ? `: ${i.correcao}` : ''}`);
       if (diffs[i.id]) md.push('', '  ```diff', ...diffs[i.id].trimEnd().split('\n').map((l) => `  ${l}`), '  ```', '');
     }
     md.push('');

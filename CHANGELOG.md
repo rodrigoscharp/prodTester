@@ -5,12 +5,6 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não lançado]
 
-### Corrigido
-- Etapas de carga longas não morrem mais quando a execução é não interativa: rodam ou são aguardadas em primeiro plano.
-- URLs com acentos ou emoji nos casos de API e nas jornadas de carga.
-- Medição de estouro de largura no celular usa a largura real da tela.
-- Falas das personas entre aspas simples, sem recusa do hook por caracteres de shell.
-
 ### Adicionado
 - Esqueleto do plugin: manifesto, marketplace e servidores Playwright MCP (um navegador isolado por persona).
 - Skill `prodtester` com orquestração por etapas e modos (`completo`, `rapido`, `carga`, `personas`, `api`, `revalidar`).
@@ -40,3 +34,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Avaliação na loja-quebrada (`demo/avaliacao.md`): 9 de 10 bugs na primeira rodada, todos os críticos, e o décimo (layout no celular) depois do ajuste da persona Jéssica.
 - Leitura de especificações OpenAPI em JSON (`openapi-endpoints.mjs`).
 - Credenciais de teste sem expor senhas, via segredos do navegador (`PRODTESTER_SEGREDOS`) ou sessão salva (`PRODTESTER_SESSAO`).
+- README de vitrine com instalação em 3 comandos, screenshots do laudo, configuração, segurança e como contribuir.
+
+### Corrigido
+- Etapas de carga longas não morrem mais quando a execução é não interativa: rodam ou são aguardadas em primeiro plano.
+- URLs com acentos ou emoji nos casos de API e nas jornadas de carga.
+- Medição de estouro de largura no celular usa a largura real da tela.
+- Falas das personas entre aspas simples, sem recusa do hook por caracteres de shell.
