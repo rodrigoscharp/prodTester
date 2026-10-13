@@ -1,0 +1,25 @@
+{
+  "name": "prodtester",
+  "displayName": "prodtester",
+  "version": "0.1.0",
+  "description": "Auditoria completa de sistemas web: personas sintéticas navegando pelos fluxos, testes de API, carga com k6 até o ponto de quebra e plano de correção com antes e depois medido.",
+  "author": {
+    "name": "Rodrigo Scharp",
+    "url": "https://github.com/rodrigoscharp"
+  },
+  "homepage": "https://github.com/rodrigoscharp/prodTester",
+  "repository": "https://github.com/rodrigoscharp/prodTester",
+  "license": "MIT",
+  "keywords": [
+    "auditoria",
+    "qa",
+    "testes",
+    "personas",
+    "playwright",
+    "k6",
+    "carga",
+    "acessibilidade",
+    "api"
+  ],
+  "mcpServers": "./mcp/navegadores.json"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "prodtester",
+  "owner": {
+    "name": "Rodrigo Scharp",
+    "url": "https://github.com/rodrigoscharp"
+  },
+  "description": "Marketplace do prodtester: auditoria de sistemas web com personas, API, carga e plano de correção.",
+  "plugins": [
+    {
+      "name": "prodtester",
+      "source": "./",
+      "description": "Auditoria completa de sistemas web: personas sintéticas, testes de API, carga com k6 e plano de correção.",
+      "category": "testing",
+      "tags": ["qa", "playwright", "k6", "carga", "personas"]
+    }
+  ]
+}

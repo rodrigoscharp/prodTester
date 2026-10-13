@@ -1,0 +1,17 @@
+# Dependências
+node_modules/
+
+# Saídas de auditoria geradas pela skill (podem conter dados do sistema auditado)
+auditoria/
+.playwright-mcp/
+
+# Segredos e ambiente local
+.env
+.env.*
+!.env.example
+
+# Sistema e editores
+.DS_Store
+*.log
+.idea/
+.vscode/
