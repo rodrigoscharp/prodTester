@@ -122,13 +122,15 @@ const resistencia = (() => {
   const depoisDoAquecimento = q >= 2 ? media(amostras.slice(q, 2 * q)) : null;
   const final = q >= 2 ? media(amostras.slice(3 * q)) : null;
   const crescimento = depoisDoAquecimento && final ? Math.round(((final - depoisDoAquecimento) / depoisDoAquecimento) * 100) : null;
-  const dentro = r.geral.p95_ms < limites.p95_ms && r.geral.taxa_erro < limites.taxa_erro;
+  // Como nas outras etapas, vale o patamar (degrau medido), sem a subida.
+  const patamar = (r.degraus ?? []).find((d) => d.medido) ?? { vus: r.geral.vus_max, p95_ms: r.geral.p95_ms, taxa_erro: r.geral.taxa_erro };
+  const dentro = patamar.p95_ms < limites.p95_ms && patamar.taxa_erro < limites.taxa_erro;
   if (crescimento !== null && crescimento > 20) alertas.push(`Na resistência, a memória do sistema cresceu ${crescimento}% entre o começo (depois do aquecimento) e o fim da etapa, sem voltar: investigue vazamento de memória.`);
   return {
-    vus: r.geral.vus_max,
+    vus: patamar.vus,
     duracao_s: r.duracao_s ?? maquinas[r.arquivo]?.duracao_s ?? null,
-    p95_ms: r.geral.p95_ms,
-    taxa_erro: r.geral.taxa_erro,
+    p95_ms: patamar.p95_ms,
+    taxa_erro: patamar.taxa_erro,
     dentro_dos_limites: dentro,
     memoria_mb: depoisDoAquecimento !== null ? { depois_do_aquecimento: Math.round(depoisDoAquecimento), fim: Math.round(final), crescimento_pct: crescimento } : null,
     memoria_crescendo: crescimento !== null ? crescimento > 20 : null,
